@@ -18,10 +18,10 @@
   </g>
   <g class="relationship" data-id="c5a10b07">
     <line x1="-290" y1="50.27" x2="-120" y2="20.8" stroke="#52606D" stroke-width="1.5" stroke-linecap="round" class="outline" marker-end="url(#arrow)" />
-    <rect x="-244.9" y="20.53" width="79.81" height="15" fill="#FFFFFF" stroke="none" stroke-width="0" />
-    <text x="-205" y="28.03" font-size="12" fill="#0F172A" text-anchor="middle" dominant-baseline="central">Views shared</text>
-    <rect x="-233.92" y="35.53" width="57.84" height="15" fill="#FFFFFF" stroke="none" stroke-width="0" />
-    <text x="-205" y="43.03" font-size="12" fill="#0F172A" text-anchor="middle" dominant-baseline="central">diagrams</text>
+    <rect x="-252.58" y="20.53" width="95.16" height="15" fill="#FFFFFF" stroke="none" stroke-width="0" />
+    <text x="-205" y="28.03" font-size="12" fill="#0F172A" text-anchor="middle" dominant-baseline="central">Opens snapshot</text>
+    <rect x="-246.88" y="35.53" width="83.77" height="15" fill="#FFFFFF" stroke="none" stroke-width="0" />
+    <text x="-205" y="43.03" font-size="12" fill="#0F172A" text-anchor="middle" dominant-baseline="central">and repo links</text>
   </g>
   <g class="relationship" data-id="c5a10b04">
     <line x1="120" y1="-36.52" x2="260" y2="-79.13" stroke="#52606D" stroke-width="1.5" stroke-linecap="round" class="outline" marker-end="url(#arrow)" />
@@ -53,8 +53,8 @@
   </g>
   <g class="relationship" data-id="c5a10b09">
     <line x1="54.04" y1="-65" x2="307.59" y2="-370" stroke="#52606D" stroke-width="1.5" stroke-linecap="round" class="outline" marker-end="url(#arrow)" />
-    <rect x="128.05" y="-225" width="105.54" height="15" fill="#FFFFFF" stroke="none" stroke-width="0" />
-    <text x="180.81" y="-217.5" font-size="12" fill="#0F172A" text-anchor="middle" dominant-baseline="central">Copies share links</text>
+    <rect x="118.27" y="-225" width="125.1" height="15" fill="#FFFFFF" stroke="none" stroke-width="0" />
+    <text x="180.81" y="-217.5" font-size="12" fill="#0F172A" text-anchor="middle" dominant-baseline="central">Copies snapshot links</text>
   </g>
   <g class="relationship" data-id="c5a10b0a">
     <line x1="54.04" y1="65" x2="307.59" y2="370" stroke="#52606D" stroke-width="1.5" stroke-linecap="round" class="outline" marker-end="url(#arrow)" />

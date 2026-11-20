@@ -117,7 +117,7 @@
         "id": "c5a10b07",
         "from": "c5a10a08",
         "to": "c5a10a01",
-        "label": "Views shared diagrams",
+        "label": "Opens snapshot and repo links",
         "direction": "oneWay"
       },
       {
@@ -152,7 +152,7 @@
         "id": "c5a10b09",
         "from": "c5a10a01",
         "to": "c5a10a0a",
-        "label": "Copies share links",
+        "label": "Copies snapshot links",
         "direction": "oneWay"
       },
       {
