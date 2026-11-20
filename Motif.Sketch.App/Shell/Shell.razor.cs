@@ -37,6 +37,9 @@ public partial class Shell
     private bool glossaryDialog;
 
     private bool ReadOnlyUi => App.IsReadOnly || phone;
+
+    /// <summary>Where a Viewer's project came from, for the read-only pill.</summary>
+    private string ViewerSource => App.Repo is { } repo ? repo.ToString() : viewingExample ? "Example" : "Shared snapshot";
     private bool Editable => !ReadOnlyUi;
 
     private string EffectiveLayout => narrow && layout == "split" ? (active == "sketch" ? "sketch" : "context") : layout;

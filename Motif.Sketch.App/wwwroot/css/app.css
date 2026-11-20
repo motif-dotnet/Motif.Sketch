@@ -5,7 +5,7 @@
 
 /* App bar: the project title, the dirty dot and the layout switch */
 .title { display: flex; align-items: center; gap: 6px; padding: 4px 10px; margin-right: 6px; border-radius: 6px; color: var(--ink); font-weight: 500; min-width: 0; max-width: 320px; }
-.title .text { overflow: hidden; text-overflow: ellipsis; }
+.title .text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 button.title:hover { background: var(--hover); }
 .title .dirty { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; }
 .title-edit { font: inherit; font-weight: 500; color: var(--ink); background: var(--canvas); border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 8px; width: 240px; margin-right: 6px; }
@@ -108,7 +108,10 @@ svg.scene .hit:hover:not(.sel) .outline { filter: brightness(.96); }
 @media (max-width: 599px) {
   .switch { display: none !important; }
   .appbar > * { flex-shrink: 0; } .appbar > .title { flex-shrink: 1; }
-  .title { overflow: hidden; min-width: 0; }
+  .title { overflow: hidden; min-width: 0; padding: 4px 6px; margin-right: 2px; }
+  .pill { padding: 0 8px; }
+  /* Seen only as the eye, but still read out by screen readers */
+  .pill .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .props { width: calc(100% - 24px); max-height: 45%; }
   .s-context .pane.sketch, .s-sketch .pane.context { flex-basis: 92px; }
 }

@@ -12,6 +12,7 @@ public static class Icons
     public static readonly MarkupString Undo = I("<path d=\"M9 14L4 9l5-5\"/><path d=\"M4 9h10a6 6 0 010 12h-3\"/>");
     public static readonly MarkupString Redo = I("<path d=\"M15 14l5-5-5-5\"/><path d=\"M20 9H10a6 6 0 000 12h3\"/>");
     public static readonly MarkupString Export = I("<path d=\"M12 3v12M7 10l5 5 5-5M4 21h16\"/>");
+    public static readonly MarkupString More = I("<circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/>");
     public static readonly MarkupString Eye = I("<path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>");
     public static readonly MarkupString Fit = I("<path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/>");
     public static readonly MarkupString Maximise = I("<path d=\"M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7\"/>");

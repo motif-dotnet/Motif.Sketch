@@ -52,15 +52,15 @@
             <span class="title static"><span class="text">@App.Title</span></span>
             @if (App.Mode == AppMode.Viewer)
             {
-                <span class="pill">@Icons.Eye<span class="long">@(App.Repo is { } repo ? repo.ToString() : viewingExample ? "Example" : "Shared snapshot") · </span>read-only</span>
+                <span class="pill" title="@ViewerSource · read-only">@Icons.Eye<span class="long">@ViewerSource · </span><span class="label">read-only</span></span>
             }
             else if (App.Mode == AppMode.OtherTab)
             {
-                <span class="pill">@Icons.Eye<span class="long">Open in another tab · </span>read-only</span>
+                <span class="pill" title="Open in another tab · read-only">@Icons.Eye<span class="long">Open in another tab · </span><span class="label">read-only</span></span>
             }
             else if (phone)
             {
-                <span class="pill">@Icons.Eye read-only</span>
+                <span class="pill" title="Read-only">@Icons.Eye<span class="label">read-only</span></span>
             }
         }
 
@@ -79,8 +79,9 @@
         </div>
 
         <div class="menu @(menu == "export" ? "open" : "")">
-            <button class="cmd" title="Export" @onclick="OpenExportMenu" @onclick:stopPropagation="true">
-                @Icons.Export<span class="wide">Export</span>
+            @* On phones this is the More menu, so the bar fits: Export, then Theme and Help *@
+            <button class="cmd" title="@(phone ? "More" : "Export")" @onclick="OpenExportMenu" @onclick:stopPropagation="true">
+                @(phone ? Icons.More : Icons.Export)<span class="wide">Export</span>
                 @if (Editable && exportCheck is { } c && (c.Unplaced.Count > 0 || c.Warnings.Count > 0 || c.PlanProblems.Count > 0))
                 {
                     <span class="dot" title="Something to look at before exporting"></span>
@@ -111,6 +112,11 @@
                     }
                 }
                 <div class="note">Exports always use the light palette.</div>
+                @if (phone)
+                {
+                    <ThemeChoices Theme="@theme" ThemeChanged="SetTheme" />
+                    <button @onclick="ToggleHelp" @onclick:stopPropagation="true">@SuiteIcons.Help Help</button>
+                }
             </div>
         </div>
 
@@ -118,7 +124,8 @@
         {
             <button class="cmd" title="Copy a read-only link" @onclick="CopyLink">@SuiteIcons.Link<span class="wide">Copy link</span></button>
         }
-        @if (App.Mode == AppMode.Viewer)
+        @* A phone can't edit, so a copy to edit would be no use there (decision 61) *@
+        @if (App.Mode == AppMode.Viewer && !phone)
         {
             <button class="primary" @onclick="MakeCopy">@SuiteIcons.Copy Make a copy<span class="long">&nbsp;to edit</span></button>
         }
@@ -127,8 +134,11 @@
             <button class="primary" @onclick="UseThisTab">Use this tab instead</button>
         }
 
-        <ThemeMenu Theme="@theme" ThemeChanged="SetTheme" Open="@(menu == "theme")" OnToggle="@(() => Toggle("theme"))" />
-        <button class="cmd icon" title="Help" @onclick="ToggleHelp" @onclick:stopPropagation="true">@SuiteIcons.Help</button>
+        @if (!phone)
+        {
+            <ThemeMenu Theme="@theme" ThemeChanged="SetTheme" Open="@(menu == "theme")" OnToggle="@(() => Toggle("theme"))" />
+            <button class="cmd icon" title="Help" @onclick="ToggleHelp" @onclick:stopPropagation="true">@SuiteIcons.Help</button>
+        }
     </header>
 
     @if (App.Mode == AppMode.OtherTab)
@@ -137,13 +147,20 @@
     }
     else if (App.Repo is { } shown && App.Mode == AppMode.Viewer)
     {
-        <div class="banner"><span>This is <b>@shown</b>'s sketch, read from <code>motif/sketch.motifsketch.json</code> on its default branch. It's read-only: make a copy to edit it, then save the file back into the repo.</span></div>
+        <div class="banner"><span>This is <b>@shown</b>'s sketch, read from <code>motif/sketch.motifsketch.json</code> on its default branch. @(phone
+            ? "Look around and export; editing needs a tablet or computer."
+            : "It's read-only: make a copy to edit it, then save the file back into the repo.")</span></div>
     }
     else if (viewingExample && App.Mode == AppMode.Viewer)
     {
         <div class="banner">@(phone
             ? "This is the example: Motif Sketch's own design. Look around and export; editing needs a tablet or computer."
             : "This is the example: Motif Sketch's own design, read-only. Make a copy to edit it.")</div>
+    }
+    else if (phone && App.Mode == AppMode.Viewer)
+    {
+        @* Wider screens need no banner: the pill and Make a copy say it all *@
+        <div class="banner">This is a shared snapshot, read-only. Look around and export; editing needs a tablet or computer.</div>
     }
     else if (phone && App.Mode == AppMode.Architect)
     {

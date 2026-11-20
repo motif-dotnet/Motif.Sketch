@@ -259,7 +259,7 @@ This spec fixes what the UI must offer, not how it looks:
 The **look and feel** has had its design pass. The decisions are 26–39 in `decisions.md`, and the mockups are `docs/mockups/layout.html` (layout) and `docs/mockups/v2.html` (look):
 - **Layout and chrome:** three layouts (Context, Split, Sketch), with the hidden view shrunk to a live thumbnail strip, and a three-way switch. A slim app bar holds the project commands, and each pane has its own tool strip. Properties and the unplaced list are floating cards.
 - **Identity:** IBM Plex Sans, self-hosted. The chrome is slate plus orange only. The logo is a Motif suite mark (stepped squares) plus the tool name. Light and dark follow the system, with an override. The diagrams have a dark twin on screen, and exports are always light.
-- **Devices:** desktop and tablet edit, with touch. Phones are read-only.
+- **Devices:** desktop and tablet edit, with touch. Phones are read-only, so they offer no Make a copy to edit, and fold Export, Theme and Help into a More menu (decision 61).
 - **Checks adapters:** pale slate (§6).
 - **First-run:** a blank project with the system ready to name, plus a dismissible welcome card.
 - **Viewer mode:** editing controls hidden; Make a copy to edit as the one primary action.
