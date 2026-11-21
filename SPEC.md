@@ -38,14 +38,18 @@ The two desktop tools are the reference implementations. Their DESIGN.md files d
 
 Motif Sketch is built as ports and adapters, exactly as `motif/sketch.motifsketch.json` shows:
 
-| Port | Side | Real adapter | Fake / checks |
-|---|---|---|---|
-| User | driving | **Web App** (the Blazor UI, Architect and Viewer modes) | **Specs** (xUnit, kind Checks) |
-| Projects | driven | **Browser Files** (File System Access API, download fallback) | Fake Projects |
-| Autosave | driven | **IndexedDB** | Fake Autosave |
-| Diagram Exports | driven | **SVG Files** (File System Access API, download fallback) | Fake Diagram Exports |
-| Solution Stubs | driven | **Markdown Plan** (File System Access API, download fallback) | Fake Solution Stubs |
-| Clipboard | driven | **Browser** (Clipboard API) | Fake Clipboard |
+| Port | Side | Real adapter | Seam | Fake / checks |
+|---|---|---|---|---|
+| User | driving | **Web App** (the Blazor UI, Architect and Viewer modes) | - | **Specs** (xUnit, kind Checks) |
+| For storing projects | driven | **Browser Files** (File System Access API, download fallback) | Project Files | Fake Project Files (a fake Fitting) |
+| For autosaving | driven | **IndexedDB** (and Web Locks between tabs) | Browser Storage | Fake Browser Storage (a fake Fitting) |
+| For exporting diagrams | driven | **SVG Files** (File System Access API, download fallback) | - (its own Fitting) | Fake for exporting diagrams |
+| For exporting the plan | driven | **Markdown File** (File System Access API, download fallback) | - (its own Fitting) | Fake for exporting the plan |
+| For copying | driven | **Browser Clipboard** (Clipboard API) | - (its own Fitting) | Fake for copying |
+| For opening repos | driven | **GitHub** (raw.githubusercontent.com) | `HttpMessageHandler` (the platform's) | Fake GitHub (a fake Fitting) |
+| For exporting the glossary | driven | **Browser Files** (File System Access API, download fallback) | Glossary Files | Fake Glossary Files (a fake Fitting) |
+
+A deep adapter's specs run the real adapter over its fake Fitting, so its port has no fake of its own (decision 63).
 
 - The project layout and naming follow the plan Motif Sketch itself would export: roles as folders (`Motif.Sketch/`, `Adapters/`, `Checks/`), one project per driven port, and port interfaces named plainly with no `I` prefix. The root namespace is **`Motif.Sketch`**, keeping the dot (`Motif.Sketch.Domain`, `Motif.Sketch.UseCases`, `Motif.Sketch.Adapters`, ...). Domain and UseCases share the plain `Motif.Sketch` namespace, so the ports are `Motif.Sketch.UserTasks` and so on.
 - The adapter projects use the Razor SDK (`razorclasslib` with its samples removed), so each ships its JS module as a static web asset (`_content/<project>/x.js`), and they reference `Microsoft.JSInterop`: the one extra package, needed for `IJSRuntime`.

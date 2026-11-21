@@ -1,8 +1,11 @@
 # Manual checks before a deploy
 
-The specs cover the core through the User port. The five JS modules and the Web App's pointer
-plumbing are thin, but no automated test drives a browser (decision 45), so run this list in
-**Chrome (or Edge)** and **Firefox** before pushing a release to `main`.
+The specs drive the app through the User port, and run every real adapter over fake Fittings
+(decision 63), so the real Fittings and the Web App's views are checked by hand: no automated test
+drives a browser (decision 45). Run this list in **Chrome (or Edge)** and **Firefox** before
+pushing a release to `main`. When only a Fitting has changed, its own section is enough. If a fake
+Fitting turns out to behave differently from the real one, tighten the contract in its Seam's doc
+comments, and fix the fake.
 
 Run the app with `dotnet run --project Motif.Sketch.App` (http://localhost:5173), or check the
 published site after the workflow deploys it.
@@ -25,24 +28,44 @@ published site after the workflow deploys it.
 - [ ] Minimise Not placed to its badge and back.
 - [ ] Alt+1 / Alt+2 / Alt+3 and the thumbnail strips switch layouts; the split divider drags.
 
-## Files and autosave
+## Project Files (`JsInteropProjectFiles`, `projects.js`)
 
-- [ ] Chrome: Save asks for a file the first time, then writes to the same file. Reload, Save again: the browser asks once for permission, then writes to the same file.
-- [ ] Firefox: Save downloads a `.motifsketch.json`; Open uses the file picker.
-- [ ] The title shows a dot and the tab title a • while there are unsaved changes; closing the tab warns.
-- [ ] Reload mid-edit: nothing is lost, and the unsaved marker is still there.
-- [ ] Open a second tab: it's read-only with a banner. "Use this tab instead" moves editing to it, and the first tab goes read-only with the latest work saved.
+- [ ] Chrome: Save asks for a file the first time, then writes to the same file, and says "Saved to …". Reload, Save again: the browser asks once for permission, then writes to the same file.
+- [ ] Chrome: refuse that permission. A toast says the browser wasn't allowed to write, and the work stays unsaved.
+- [ ] Firefox: Save downloads a `.motifsketch.json` and says "Downloaded …"; Open uses the file picker.
+- [ ] Closing either picker changes nothing.
 - [ ] Open a broken file (e.g. any other JSON): a friendly list of problems, and the current work is untouched.
 
-## Exports and sharing
+## Browser Storage (`JsInteropBrowserStorage`, `autosave.js`)
+
+- [ ] The title shows a dot and the tab title a • while there are unsaved changes; closing the tab warns.
+- [ ] Reload mid-edit: nothing is lost, and the unsaved marker is still there.
+- [ ] Chrome: save to a file, edit, reload, Save: it writes to the same file after asking once for permission (the file handle came back from autosave).
+- [ ] Open a second tab: it's read-only with a banner. "Use this tab instead" moves editing to it, and the first tab goes read-only with the latest work saved.
+
+## Glossary Files (`JsInteropGlossaryFiles`, `glossaries.js`)
+
+- [ ] Export → Glossary…, Add to a glossary…: pick a copy of `motif/glossary.md`. With nothing new it says so and the file is unchanged; after adding a storage element, the new term appears in alphabetical place, marked proposed, and `git diff` shows only added lines. New glossary.md writes a whole glossary.
+- [ ] The dialog's note says the glossary is saved back to the same file in Chrome, and downloads in Firefox, where both buttons download.
+- [ ] Closing the picker writes nothing.
+
+## GitHub (the browser's `HttpClientHandler`)
+
+- [ ] Open `#repo=motif-dotnet/Motif.Sketch`: the repo's sketch, read-only, labelled with the repo and with a banner. The tool switcher says each tool opens that repo, and Motif Glossary opens its glossary. `#repo=someone/nothing-here`: a friendly error, then your own work.
+
+## Adapters that are their own Fittings
+
+SVG Files (`diagramexports.js`), Markdown File (`solutionstubs.js`) and Browser Clipboard
+(`clipboard.js`) have no rules of their own, so no spec runs them (decision 63).
 
 - [ ] Export both SVGs and the plan. The SVGs open in a browser and match the screen in light mode (no orange selection, no centre line). In dark mode the screen is dark but the exports are light.
 - [ ] The Export menu's dot and notes appear when items aren't placed; a port named "Domain" blocks the plan with a reason.
 - [ ] Copy link, open it in another browser (or a private window): read-only, both views, Export works, Make a copy turns it into ordinary unsaved work and clears the link from the address bar.
-- [ ] Damage a link (cut its end off): a friendly error, then your own work.
 - [ ] If the browser refuses clipboard access, the link appears in a dialog to copy by hand.
-- [ ] Open `#repo=motif-dotnet/Motif.Sketch`: the repo's sketch, read-only, labelled with the repo and with a banner. The tool switcher says each tool opens that repo, and Motif Glossary opens its glossary. `#repo=someone/nothing-here`: a friendly error, then your own work.
-- [ ] Export → Glossary…, Add to a glossary…: pick a copy of `motif/glossary.md`. With nothing new it says so and the file is unchanged; after adding a storage element, the new term appears in alphabetical place, marked proposed, and `git diff` shows only added lines. New glossary.md writes a whole glossary. In Firefox both download.
+
+## Sharing
+
+- [ ] Damage a link (cut its end off): a friendly error, then your own work.
 
 ## Devices and look
 

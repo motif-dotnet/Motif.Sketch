@@ -23,11 +23,12 @@ The person who sketches the context diagram and then the ports and adapters, exp
 
 ## Browser Storage
 
-Where autosaved work is kept: the browser's IndexedDB.
+Where autosaved work is kept: the browser's IndexedDB. Also the Seam the autosave adapter reaches it through, with the lock the tabs share.
 
 - **Kind:** storage
+- **In code:** `BrowserStorage` (the Seam), `JsInteropBrowserStorage`, `FakeBrowserStorage`
 - **Sketch:** `c5a10a06`
-- **See also:** [For autosaving](#for-autosaving)
+- **See also:** [For autosaving](#for-autosaving), [Seam](#seam)
 
 ## Checks adapter
 
@@ -207,20 +208,21 @@ The port that opens and saves project files.
 Where a project's repo lives. Motif Sketch reads a public repo's sketch from its default branch, through the For opening repos port, when it's opened from a repo link.
 
 - **Kind:** external system
-- **In code:** `ForOpeningReposViaGitHub` (the adapter)
+- **In code:** `ForOpeningReposViaGitHub` (the adapter), `FakeGitHub` (its fake Fitting, behind `HttpMessageHandler`)
 - **Status:** proposed
 - **Sketch:** `c5a10a0c`
 - **See also:** [Repo link](#repo-link), [For opening repos](#for-opening-repos)
 
 ## Glossary Files
 
-The project's glossary, `motif/glossary.md`. Export glossary adds an entry, marked *proposed*, for each actor, external system, storage and port in the sketch that it has no term for yet, found by **Sketch** id or name, and leaves everything else in the file as it was.
+The project's glossary, `motif/glossary.md`. Export glossary adds an entry, marked *proposed*, for each actor, external system, storage and port in the sketch that it has no term for yet, found by **Sketch** id or name, and leaves everything else in the file as it was. Also the Seam the glossary adapter reaches it through.
 
 - **Kind:** storage
 - **Avoid:** dictionary, vocabulary
+- **In code:** `GlossaryFiles` (the Seam), `JsInteropGlossaryFiles`, `FakeGlossaryFiles`
 - **Status:** proposed
 - **Sketch:** `c5a10a0b`
-- **See also:** [For exporting the glossary](#for-exporting-the-glossary)
+- **See also:** [For exporting the glossary](#for-exporting-the-glossary), [Seam](#seam)
 
 ## Motif Sketch
 
@@ -275,11 +277,12 @@ One system's context diagram and, once started, its sketch, saved together as on
 
 ## Project Files
 
-Where projects are saved: local `.motifsketch.json` files, saved in place or downloaded.
+Where projects are saved: local `.motifsketch.json` files, saved in place or downloaded. Also the Seam the project files adapter reaches them through.
 
 - **Kind:** storage
+- **In code:** `ProjectFiles` (the Seam), `JsInteropProjectFiles`, `FakeProjectFiles`
 - **Sketch:** `c5a10a05`
-- **See also:** [For storing projects](#for-storing-projects)
+- **See also:** [For storing projects](#for-storing-projects), [Seam](#seam)
 
 ## Real
 
