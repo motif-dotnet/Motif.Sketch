@@ -7,7 +7,7 @@ namespace Motif.Sketch.Specs;
 public sealed class Harness
 {
     public FakeForStoringProjects Projects { get; } = new();
-    public FakeForAutosaving Autosave { get; } = new();
+    public FakeBrowserStorage BrowserStorage { get; } = new();
     public FakeForExportingDiagrams DiagramExports { get; } = new();
     public FakeForExportingThePlan PlanExports { get; } = new();
     public FakeForCopying Clipboard { get; } = new();
@@ -18,7 +18,8 @@ public sealed class Harness
     public UserTasks Tasks => App;
     public UserQueries Queries => App;
 
-    public Harness() => App = new MotifSketchApplication(Projects, Autosave, DiagramExports, PlanExports, Clipboard,
+    public Harness() => App = new MotifSketchApplication(Projects,
+        new ForAutosavingViaIndexedDB(BrowserStorage), DiagramExports, PlanExports, Clipboard,
         new ForOpeningReposViaGitHub(GitHub), Glossaries);
 
     /// <summary>A started app with a blank project.</summary>
@@ -35,6 +36,13 @@ public sealed class Harness
         var harness = await Started();
         await harness.Tasks.OpenExample();
         return harness;
+    }
+
+    /// <summary>Takes every Seam off the sketch, leaving its adapters thin.</summary>
+    public void ClearSeams()
+    {
+        foreach (var adapter in Adapters.Where(a => a.Seam is not null).ToList())
+            Tasks.SetAdapterSeam(adapter.Id, null);
     }
 
     public ElementView Element(string name) => Queries.Context.Elements.Single(e => e.Name == name);

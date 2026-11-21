@@ -49,6 +49,7 @@ public sealed class Files
     public async Task A_Seam_is_saved_on_its_adapter_and_left_out_when_there_is_none()
     {
         var h = await Harness.WithExample();
+        h.ClearSeams();
         await h.Tasks.SaveAs();
         h.Projects.Writes[^1].Json.Should().NotContain("\"seam\"");
 

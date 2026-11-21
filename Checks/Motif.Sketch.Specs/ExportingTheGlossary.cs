@@ -145,7 +145,7 @@ public sealed class ExportingTheGlossary
         var outcome = await h.Tasks.ExportGlossary(intoExisting: false);
 
         outcome.Succeeded.Should().BeTrue();
-        h.Autosave.Stores.Should().Be(0);
+        h.BrowserStorage.Writes.Should().BeEmpty();
     }
 
     [Fact]

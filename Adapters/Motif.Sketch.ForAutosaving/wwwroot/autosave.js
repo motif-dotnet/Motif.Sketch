@@ -1,44 +1,48 @@
-// Autosave in IndexedDB, with the file handle beside the work, and one owning tab at a time.
-// Tabs coordinate with Web Locks (who owns autosave) and a BroadcastChannel ("use this tab instead").
+// The Browser Storage Fitting: the work in IndexedDB, with the file handle beside it, and a lock its tabs share
+// (Web Locks), asked for on a BroadcastChannel. One call to the browser each; the rules are in the C# adapter.
 
-const DB = "motif-sketch", STORE = "work", KEY = "current", LOCK = "motif-sketch-autosave";
+const DB = "motif-sketch", STORE = "work", KEY = "current", LOCK = "motif-sketch-autosave", ASK = "take-over";
 const handles = (globalThis.motifFileHandles ??= new Map());
 const channel = "BroadcastChannel" in window ? new BroadcastChannel("motif-sketch") : null;
 
-let dotnet = null;
 let release = null;      // resolves the held lock's promise, letting the lock go
-let pending = null;      // the latest work not yet written
-let writing = null;      // the write in flight
 
-export function init(reference) {
-  dotnet = reference;
-  if (channel) channel.onmessage = async e => {
-    if (e.data !== "take-over" || !release) return;
-    await flush();                                  // the last autosave lands before handing over
-    const letGo = release;
-    release = null;
-    await dotnet.invokeMethodAsync("OnReleased");
-    letGo();
-  };
+export function listen(dotnet) {
+  if (channel) channel.onmessage = e => e.data === ASK && dotnet.invokeMethodAsync("Asked");
 }
 
-function hold(lock, resolve) {
-  resolve(true);
+export function canLock() {
+  return "locks" in navigator;
+}
+
+// The lock is held for as long as the promise its callback returns is pending.
+function hold() {
   return new Promise(r => (release = r));
 }
 
-export function claim() {
-  if (!navigator.locks) return true;
+export function tryLock() {
   return new Promise(resolve =>
-    navigator.locks.request(LOCK, { ifAvailable: true }, lock => (lock ? hold(lock, resolve) : resolve(false))));
+    navigator.locks.request(LOCK, { ifAvailable: true }, lock => {
+      resolve(lock !== null);
+      return lock && hold();
+    }));
 }
 
-export function takeOver() {
-  if (!navigator.locks) return;
-  return new Promise(resolve => {
-    navigator.locks.request(LOCK, lock => hold(lock, resolve));
-    channel?.postMessage("take-over");
-  });
+export function lock() {
+  return new Promise(resolve =>
+    navigator.locks.request(LOCK, () => {
+      resolve();
+      return hold();
+    }));
+}
+
+export function unlock() {
+  release?.();
+  release = null;
+}
+
+export function askForTheLock() {
+  channel?.postMessage(ASK);
 }
 
 function open() {
@@ -64,29 +68,20 @@ async function run(mode, action) {
   }
 }
 
-// Returns [json, fileName, handleId, unsaved] or null.
-export async function restore() {
+// The handle itself is kept, not its id: ids last only as long as the page.
+export async function read() {
   const work = await run("readonly", store => store.get(KEY));
   if (!work) return null;
-  let handleId = null;
+  let fileHandle = null;
   if (work.handle) {
-    handleId = `restored-${Date.now().toString(36)}`;
-    handles.set(handleId, work.handle);
+    fileHandle = `restored-${Date.now().toString(36)}`;
+    handles.set(fileHandle, work.handle);
   }
-  return [work.json, work.fileName ?? null, handleId, work.unsaved ? "1" : ""];
+  return { json: work.json, fileName: work.fileName ?? null, fileHandle, unsaved: !!work.unsaved };
 }
 
-export function store(json, fileName, handleId, unsaved) {
-  pending = { json, fileName, handle: handleId ? handles.get(handleId) ?? null : null, unsaved };
-  return flush();
-}
-
-// Writes are coalesced: while one is in flight, only the newest pending work is written next.
-async function flush() {
-  while (pending || writing) {
-    if (writing) { await writing; continue; }
-    const work = pending;
-    pending = null;
-    writing = run("readwrite", store => store.put(work, KEY)).finally(() => (writing = null));
-  }
+export function write(work) {
+  const handle = work.fileHandle ? handles.get(work.fileHandle) ?? null : null;
+  return run("readwrite", store =>
+    store.put({ json: work.json, fileName: work.fileName, handle, unsaved: work.unsaved }, KEY));
 }

@@ -56,7 +56,7 @@ public sealed class Exporting
         var doc = Parse(h.DiagramExports.Written.Single().Svg);
         doc.Descendants(Svg + "g").Where(g => (string?)g.Attribute("class") == "port").Should().HaveCount(8);
         var adapters = doc.Descendants(Svg + "g").Where(g => (string?)g.Attribute("class") == "adapter").ToList();
-        adapters.Should().HaveCount(16);
+        adapters.Should().HaveCount(h.Adapters.Count());
         var specs = adapters.Single(a => (string?)a.Attribute("data-kind") == "checks").Element(Svg + "rect")!;
         ((string?)specs.Attribute("fill")).Should().Be("#E2E8F0");
         specs.Attribute("stroke-dasharray").Should().BeNull();

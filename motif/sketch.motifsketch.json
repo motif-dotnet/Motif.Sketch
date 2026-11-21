@@ -238,15 +238,10 @@
             "technology": "Browser storage",
             "description": "Autosaved work in progress and its file handle, so a refresh or closed tab loses nothing and Save still goes to the same file",
             "kind": "real",
+            "seam": "Browser Storage",
             "sources": [
               "c5a10a06"
             ]
-          },
-          {
-            "id": "d6b20d06",
-            "name": "Fake for autosaving",
-            "kind": "fake",
-            "sources": []
           }
         ]
       },

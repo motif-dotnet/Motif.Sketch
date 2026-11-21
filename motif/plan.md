@@ -62,15 +62,15 @@ Motif.Sketch.sln
 | `Motif.Sketch.ForCopying` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.ForOpeningRepos` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.ForExportingTheGlossary` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes` |
+| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases`, `Motif.Sketch.ForAutosaving` |
+| `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes`, `Motif.Sketch.ForAutosaving` |
 
 Rules:
 
 - `Motif.Sketch.Domain` references nothing.
 - `Motif.Sketch.UseCases` references `Motif.Sketch.Domain` only.
 - Every adapter project references `Motif.Sketch.UseCases` only. **Adapters never reference each other.**
-- The specs project may also reference the fakes it wires up by hand.
+- The fakes project also references the adapter projects whose Seams it fakes, and the specs project references them too, so specs run the real adapters over fake Fittings.
 - These references are the dependency rule. Don't add others.
 
 ## 4. Namespaces
@@ -235,7 +235,6 @@ Kinds: **Real** is the production adapter; **Fake** is a simple in-process stand
 | For storing projects | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.ForStoringProjects` | `ForStoringProjectsViaBrowserFiles` | Context diagram: Project Files |
 | For storing projects | Fake for storing projects | Fake | - | `Motif.Sketch.Fakes` (`ForStoringProjects/`) | `FakeForStoringProjects` | Added in the sketch |
 | For autosaving | IndexedDB | Real | Browser storage | `Motif.Sketch.ForAutosaving` | `ForAutosavingViaIndexedDB` | Context diagram: Browser Storage |
-| For autosaving | Fake for autosaving | Fake | - | `Motif.Sketch.Fakes` (`ForAutosaving/`) | `FakeForAutosaving` | Added in the sketch |
 | For exporting diagrams | SVG Files | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.ForExportingDiagrams` | `ForExportingDiagramsViaSvgFiles` | Context diagram: Diagram Exports |
 | For exporting diagrams | Fake for exporting diagrams | Fake | - | `Motif.Sketch.Fakes` (`ForExportingDiagrams/`) | `FakeForExportingDiagrams` | Added in the sketch |
 | For exporting the plan | Markdown File | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.ForExportingThePlan` | `ForExportingThePlanViaMarkdownFile` | Context diagram: Solution Plans |
@@ -257,6 +256,40 @@ public sealed class ForStoringProjectsViaBrowserFiles : ForStoringProjects
 }
 ```
 
+Deep adapters: an adapter with a Seam keeps its own rules, and reaches the outside world through the Seam, an interface it owns. The Seam's Fitting makes one outside call per member, with no branches worth testing. Specs run the real adapter over its fake Fitting, so its port has no fake of its own. The Seam and its real Fitting go in the adapter's project and namespace; the fake Fitting goes in the fakes project, in the port's folder.
+
+| Port | Adapters | Seam | Real Fitting | Fake Fitting |
+|---|---|---|---|---|
+| For autosaving | IndexedDB | `BrowserStorage` | `JsInteropBrowserStorage` | `FakeBrowserStorage` (`ForAutosaving/`) |
+
+For each Seam, add the empty interface, its real Fitting and its fake Fitting. Each adapter with a Seam takes it in its one constructor. For example:
+
+```csharp
+namespace Motif.Sketch.Adapters;
+
+public interface BrowserStorage
+{
+}
+
+public sealed class JsInteropBrowserStorage : BrowserStorage
+{
+}
+
+public sealed class ForAutosavingViaIndexedDB(BrowserStorage browserStorage) : ForAutosaving
+{
+}
+```
+
+```csharp
+using Motif.Sketch.Adapters;
+
+namespace Motif.Sketch.Fakes;
+
+public sealed class FakeBrowserStorage : BrowserStorage
+{
+}
+```
+
 Driving adapters (the app among them) keep their project template's default files. Checks and fakes on driving ports are the specs (section 7).
 
 Adapter notes:
@@ -273,9 +306,9 @@ Adapter notes:
 
 ## 7. Fakes and specs
 
-- `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake driven adapter, with a folder per port (`ForStoringProjects/`, `ForAutosaving/`, `ForExportingDiagrams/`, `ForExportingThePlan/`, `ForCopying/`, `ForOpeningRepos/`, `ForExportingTheGlossary/`). The namespace is flat: `Motif.Sketch.Fakes`.
+- `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake Fitting, and every fake of a port whose adapters are their own Fittings, with a folder per port (`ForStoringProjects/`, `ForExportingDiagrams/`, `ForExportingThePlan/`, `ForCopying/`, `ForOpeningRepos/`, `ForExportingTheGlossary/`, `ForAutosaving/`). The namespace is flat: `Motif.Sketch.Fakes`.
 - `Motif.Sketch.Specs` (`Checks/Motif.Sketch.Specs/`): xUnit. Packages: `Microsoft.NET.Test.Sdk`, `xunit`, `xunit.runner.visualstudio`, `coverlet.collector`, `AwesomeAssertions`. Keep the template's packages and add `AwesomeAssertions`.
-  Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire the fake adapters up by hand; there is no composition root yet.
+  Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire the real adapters over their fake Fittings, and the other fakes, up by hand; there is no composition root yet.
 - The browser adapters (`Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingDiagrams`, `Motif.Sketch.ForExportingThePlan`, `Motif.Sketch.ForCopying`, `Motif.Sketch.ForOpeningRepos`, `Motif.Sketch.ForExportingTheGlossary`) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.
 - Use the latest stable package versions. Use AwesomeAssertions (`.Should()` style) in specs.
 
@@ -307,7 +340,7 @@ Instructions for the coding agent:
    dotnet_naming_style.pascal_case.capitalization = pascal_case
    ```
 
-6. Add the port interfaces and the application stub from section 5, and the adapter stub classes from section 6.
+6. Add the port interfaces and the application stub from section 5, and the adapter stub classes, and each Seam with its Fittings, from section 6.
 7. Add the placeholder spec from section 7.
 8. Check that `dotnet build` and `dotnet test` both succeed.
 

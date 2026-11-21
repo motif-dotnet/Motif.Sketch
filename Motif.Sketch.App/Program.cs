@@ -10,6 +10,8 @@ builder.RootComponents.Add<Motif.Sketch.App.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<ForStoringProjectsViaBrowserFiles>();
+// A deep adapter is built over its Seam's real Fitting.
+builder.Services.AddSingleton<BrowserStorage, JsInteropBrowserStorage>();
 builder.Services.AddSingleton<ForAutosavingViaIndexedDB>();
 builder.Services.AddSingleton<ForExportingDiagramsViaSvgFiles>();
 builder.Services.AddSingleton<ForExportingThePlanViaMarkdownFile>();

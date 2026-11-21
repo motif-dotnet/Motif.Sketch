@@ -1,49 +1,89 @@
-using Microsoft.JSInterop;
-
 namespace Motif.Sketch.Adapters;
 
-/// <summary>Autosave in IndexedDB; Web Locks and a BroadcastChannel decide which tab owns it.</summary>
-public sealed class ForAutosavingViaIndexedDB(IJSRuntime js) : ForAutosaving, IAsyncDisposable
+/// <summary>
+/// Autosave in the browser's IndexedDB, over the <see cref="BrowserStorage"/>
+/// Seam. The tab holding the storage's lock owns autosave. "Use this tab
+/// instead" asks for the lock, and the owner writes its last autosave before
+/// letting go. Where tabs can't share a lock, every tab owns it.
+/// </summary>
+public sealed class ForAutosavingViaIndexedDB : ForAutosaving
 {
-    private readonly Lazy<Task<IJSObjectReference>> module = new(async () =>
+    private readonly BrowserStorage storage;
+
+    private bool owns;
+
+    /// <summary>
+    /// The newest work not yet written.
+    /// </summary>
+    private AutosavedWork? waiting;
+
+    /// <summary>
+    /// Done once every write asked for so far has landed.
+    /// </summary>
+    private Task written = Task.CompletedTask;
+
+    public ForAutosavingViaIndexedDB(BrowserStorage storage)
     {
-        var m = await js.InvokeAsync<IJSObjectReference>("import", "./_content/Motif.Sketch.ForAutosaving/autosave.js");
-        return m;
-    });
-    private DotNetObjectReference<ForAutosavingViaIndexedDB>? self;
+        this.storage = storage;
+        storage.WhenAskedForTheLock(HandOver);
+    }
 
     public event Action? Released;
 
-    public async Task<bool> Claim() => await (await Module()).InvokeAsync<bool>("claim");
-
-    public async Task TakeOver() => await (await Module()).InvokeVoidAsync("takeOver");
-
-    public async Task<AutosavedWork?> Restore()
+    public async Task<bool> Claim()
     {
-        var work = await (await Module()).InvokeAsync<string?[]?>("restore");
-        return work is null ? null : new AutosavedWork(work[0]!, work[1], work[2], !string.IsNullOrEmpty(work[3]));
+        if (!await storage.CanLock()) return true;
+        owns = await storage.TryLock();
+        return owns;
     }
 
-    public async Task Store(AutosavedWork work) =>
-        await (await Module()).InvokeVoidAsync("store", work.Json, work.FileName, work.FileHandle, work.Unsaved);
-
-    [JSInvokable]
-    public void OnReleased() => Released?.Invoke();
-
-    private async Task<IJSObjectReference> Module()
+    public async Task TakeOver()
     {
-        var m = await module.Value;
-        if (self is null)
+        if (!await storage.CanLock()) return;
+        // The wait for the lock starts before the owner is asked, so the
+        // lock comes here once it's let go.
+        var locked = storage.Lock();
+        await storage.AskForTheLock();
+        await locked;
+        owns = true;
+    }
+
+    public Task<AutosavedWork?> Restore() => storage.Read();
+
+    /// <summary>
+    /// Writes are coalesced: while one is in flight, only the newest work
+    /// waiting is written next.
+    /// </summary>
+    public Task Store(AutosavedWork work)
+    {
+        waiting = work;
+        if (written.IsCompleted) written = WriteWaiting();
+        return written;
+    }
+
+    private async Task WriteWaiting()
+    {
+        while (waiting is { } next)
         {
-            self = DotNetObjectReference.Create(this);
-            await m.InvokeVoidAsync("init", self);
+            waiting = null;
+            await storage.Write(next);
         }
-        return m;
     }
 
-    public async ValueTask DisposeAsync()
+    private async Task HandOver()
     {
-        if (module.IsValueCreated) await (await module.Value).DisposeAsync();
-        self?.Dispose();
+        if (!owns) return;
+        owns = false;
+        try
+        {
+            await written;
+        }
+        catch (Exception)
+        {
+            // The other tab gets the lock all the same: it would otherwise
+            // wait for it for ever.
+        }
+        Released?.Invoke();
+        await storage.Unlock();
     }
 }

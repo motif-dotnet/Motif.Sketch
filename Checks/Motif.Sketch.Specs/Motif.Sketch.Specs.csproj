@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\Motif.Sketch\Motif.Sketch.UseCases\Motif.Sketch.UseCases.csproj" />
     <ProjectReference Include="..\Motif.Sketch.Fakes\Motif.Sketch.Fakes.csproj" />
     <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForOpeningRepos\Motif.Sketch.ForOpeningRepos.csproj" />
+    <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForAutosaving\Motif.Sketch.ForAutosaving.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,10 +6,11 @@ namespace Motif.Sketch.Specs;
 /// </summary>
 public sealed class PlanningDeepAdapters
 {
-    /// <summary>The example, with the IndexedDB adapter reaching the browser through a Seam.</summary>
+    /// <summary>The example with no Seams but the IndexedDB adapter's, which reaches the browser through one.</summary>
     private static async Task<Harness> WithDeepAutosave()
     {
         var h = await Harness.WithExample();
+        h.ClearSeams();
         h.Tasks.SetAdapterSeam(h.Adapter("IndexedDB").Id, "Browser Storage");
         return h;
     }
@@ -46,10 +47,7 @@ public sealed class PlanningDeepAdapters
     [Fact]
     public async Task A_deep_adapter_gets_its_Seam_with_a_real_and_a_fake_Fitting_in_place_of_a_port_fake()
     {
-        var h = await WithDeepAutosave();
-        h.Tasks.RemoveAdapter(h.Adapter("Fake for autosaving").Id);
-
-        var md = await Plan(h);
+        var md = await Plan(await WithDeepAutosave());
 
         md.Should().Contain(
             "| For autosaving | IndexedDB | `BrowserStorage` | `JsInteropBrowserStorage` | `FakeBrowserStorage` (`ForAutosaving/`) |");
@@ -61,7 +59,6 @@ public sealed class PlanningDeepAdapters
     public async Task A_port_with_an_adapter_that_is_its_own_Fitting_still_gets_a_port_fake()
     {
         var h = await WithDeepAutosave();
-        h.Tasks.RemoveAdapter(h.Adapter("Fake for autosaving").Id);
         h.Tasks.AddAdapter(h.Port("For autosaving").Id, AdapterKind.Simulated);
 
         var md = await Plan(h);
@@ -73,6 +70,7 @@ public sealed class PlanningDeepAdapters
     public async Task A_drawn_port_fake_beside_deep_adapters_is_warned_about()
     {
         var h = await WithDeepAutosave();
+        h.Tasks.AddAdapter(h.Port("For autosaving").Id, AdapterKind.Fake);
 
         var outcome = await h.Tasks.ExportPlan();
 
@@ -94,7 +92,10 @@ public sealed class PlanningDeepAdapters
     [Fact]
     public async Task Without_Seams_the_fakes_and_specs_reference_no_adapter_projects()
     {
-        var md = await Plan(await Harness.WithExample());
+        var h = await Harness.WithExample();
+        h.ClearSeams();
+
+        var md = await Plan(h);
 
         md.Should().Contain("| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases` |");
         md.Should().NotContain("Fitting");

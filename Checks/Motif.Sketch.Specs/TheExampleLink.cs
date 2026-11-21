@@ -20,14 +20,14 @@ public sealed class TheExampleLink
     public async Task An_example_link_never_touches_autosave()
     {
         var h = new Harness();
-        h.Autosave.Work = RealWork;
+        h.BrowserStorage.Work = RealWork;
 
         var started = await h.Tasks.Start("#example");
         await h.Tasks.ExportPlan();
 
         started.StartedAs.Should().Be(StartedAs.Example);
-        h.Autosave.Stores.Should().Be(0);
-        h.Autosave.Work.Should().Be(RealWork);
+        h.BrowserStorage.Writes.Should().BeEmpty();
+        h.BrowserStorage.Work.Should().Be(RealWork);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public sealed class TheExampleLink
         await h.Tasks.MakeCopyToEdit();
 
         h.Queries.Should().BeEquivalentTo(new { Mode = AppMode.Architect, HasUnsavedChanges = true });
-        h.Autosave.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
+        h.BrowserStorage.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
     }
 
     [Fact]
@@ -58,19 +58,19 @@ public sealed class TheExampleLink
         var empty = Project.CreateNew(systemName: "Named but nothing else");
         var work = new AutosavedWork(ProjectJson.Save(empty), null, null, true);
         var h = new Harness();
-        h.Autosave.Work = work;
+        h.BrowserStorage.Work = work;
 
         var started = await h.Tasks.Start(null, exampleIfEmpty: true);
 
         started.StartedAs.Should().Be(StartedAs.Example);
-        h.Autosave.Work.Should().Be(work);
+        h.BrowserStorage.Work.Should().Be(work);
     }
 
     [Fact]
     public async Task A_phone_with_real_autosaved_work_opens_that_work()
     {
         var h = new Harness();
-        h.Autosave.Work = RealWork;
+        h.BrowserStorage.Work = RealWork;
 
         var started = await h.Tasks.Start(null, exampleIfEmpty: true);
 

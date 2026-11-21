@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Motif.Sketch\Motif.Sketch.UseCases\Motif.Sketch.UseCases.csproj" />
+    <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForAutosaving\Motif.Sketch.ForAutosaving.csproj" />
   </ItemGroup>
 
 </Project>

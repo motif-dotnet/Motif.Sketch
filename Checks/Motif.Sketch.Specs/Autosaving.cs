@@ -9,8 +9,8 @@ public sealed class Autosaving
 
         h.Tasks.AddElement(ElementType.Storage);
 
-        h.Autosave.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
-        h.Autosave.Work.Unsaved.Should().BeTrue();
+        h.BrowserStorage.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
+        h.BrowserStorage.Work.Unsaved.Should().BeTrue();
     }
 
     [Fact]
@@ -22,7 +22,7 @@ public sealed class Autosaving
         first.Tasks.AddElement(ElementType.Storage);
 
         var next = new Harness();
-        next.Autosave.Work = first.Autosave.Work;
+        next.BrowserStorage.Work = first.BrowserStorage.Work;
         var started = await next.Tasks.Start(null);
 
         started.StartedAs.Should().Be(StartedAs.Restored);
@@ -38,7 +38,7 @@ public sealed class Autosaving
         var handle = first.Projects.Writes[^1].Handle;
 
         var next = new Harness();
-        next.Autosave.Work = first.Autosave.Work;
+        next.BrowserStorage.Work = first.BrowserStorage.Work;
         await next.Tasks.Start(null);
         await next.Tasks.Save();
 
@@ -58,31 +58,31 @@ public sealed class Autosaving
     public async Task A_second_tab_is_read_only_and_never_writes_autosave()
     {
         var h = new Harness();
-        h.Autosave.OwnedElsewhere = true;
-        h.Autosave.Work = new AutosavedWork(Example.Json(), null, null, false);
+        h.BrowserStorage.HeldElsewhere = true;
+        h.BrowserStorage.Work = new AutosavedWork(Example.Json(), null, null, false);
 
         (await h.Tasks.Start(null)).StartedAs.Should().Be(StartedAs.OtherTab);
 
         h.Queries.Should().BeEquivalentTo(new { Mode = AppMode.OtherTab, IsReadOnly = true });
         h.Queries.Title.Should().Be("Motif Sketch");
         h.Invoking(x => x.Tasks.AddElement(ElementType.Storage)).Should().Throw<ProjectRuleException>();
-        h.Autosave.Stores.Should().Be(0);
+        h.BrowserStorage.Writes.Should().BeEmpty();
     }
 
     [Fact]
     public async Task Use_this_tab_instead_hands_ownership_over_with_the_latest_work()
     {
         var h = new Harness();
-        h.Autosave.OwnedElsewhere = true;
+        h.BrowserStorage.HeldElsewhere = true;
         await h.Tasks.Start(null);
-        h.Autosave.Work = new AutosavedWork(Example.Json(), "latest.motifsketch.json", null, true);
+        h.BrowserStorage.Work = new AutosavedWork(Example.Json(), "latest.motifsketch.json", null, true);
 
         await h.Tasks.UseThisTab();
 
         h.Queries.Mode.Should().Be(AppMode.Architect);
         h.Queries.FileName.Should().Be("latest.motifsketch.json");
         h.Tasks.AddElement(ElementType.Storage);
-        h.Autosave.Stores.Should().Be(1);
+        h.BrowserStorage.Writes.Should().ContainSingle();
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public sealed class Autosaving
     {
         var h = await Harness.Started();
 
-        h.Autosave.TakenOverElsewhere();
+        await h.BrowserStorage.AnotherTabAsksForTheLock();
 
         h.Queries.Mode.Should().Be(AppMode.OtherTab);
         h.Invoking(x => x.Tasks.AddElement(ElementType.Storage)).Should().Throw<ProjectRuleException>();
@@ -102,7 +102,70 @@ public sealed class Autosaving
         var h = await Harness.Started();
         h.Tasks.AddElement(ElementType.Storage);
 
-        h.Autosave.Stores.Should().BePositive();
+        h.BrowserStorage.Writes.Count.Should().BePositive();
         h.Queries.HasUnsavedChanges.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task While_a_write_is_in_flight_only_the_newest_work_is_written_next()
+    {
+        var h = await Harness.Started();
+        h.BrowserStorage.HoldWrites();
+        h.Tasks.AddElement(ElementType.Storage);
+        var first = h.Queries.ProjectJsonText;
+        h.Tasks.AddElement(ElementType.ExternalSystem);
+        h.Tasks.AddElement(ElementType.SecondaryActor);
+
+        h.BrowserStorage.ReleaseWrites();
+
+        h.BrowserStorage.Writes.Select(w => w.Json).Should().Equal(first, h.Queries.ProjectJsonText);
+    }
+
+    [Fact]
+    public async Task The_last_autosave_lands_before_another_tab_takes_over()
+    {
+        var h = await Harness.Started();
+        h.BrowserStorage.HoldWrites();
+        h.Tasks.AddElement(ElementType.Storage);
+        h.Tasks.AddElement(ElementType.ExternalSystem);
+
+        var takeOver = h.BrowserStorage.AnotherTabAsksForTheLock();
+        h.BrowserStorage.HeldElsewhere.Should().BeFalse("the lock waits for the writes");
+        h.BrowserStorage.ReleaseWrites();
+        await takeOver;
+
+        h.BrowserStorage.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
+        h.BrowserStorage.HeldElsewhere.Should().BeTrue();
+        h.Queries.Mode.Should().Be(AppMode.OtherTab);
+    }
+
+    [Fact]
+    public async Task Another_tab_gets_autosave_even_when_the_last_write_fails()
+    {
+        var h = await Harness.Started();
+        h.BrowserStorage.HoldWrites();
+        h.Tasks.AddElement(ElementType.Storage);
+        h.BrowserStorage.Fail = true;
+
+        var takeOver = h.BrowserStorage.AnotherTabAsksForTheLock();
+        h.BrowserStorage.ReleaseWrites();
+        await takeOver;
+
+        h.BrowserStorage.HeldElsewhere.Should().BeTrue();
+        h.Queries.Mode.Should().Be(AppMode.OtherTab);
+    }
+
+    [Fact]
+    public async Task Where_tabs_cant_share_a_lock_every_tab_owns_autosave()
+    {
+        var h = new Harness();
+        h.BrowserStorage.Lockable = false;
+        h.BrowserStorage.HeldElsewhere = true;
+
+        (await h.Tasks.Start(null)).StartedAs.Should().Be(StartedAs.Fresh);
+        h.Tasks.AddElement(ElementType.Storage);
+
+        h.Queries.Mode.Should().Be(AppMode.Architect);
+        h.BrowserStorage.Writes.Should().ContainSingle();
     }
 }

@@ -35,12 +35,12 @@ public sealed class OpeningARepo
     [Fact]
     public async Task A_repo_link_never_touches_autosave()
     {
-        var (h, _) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.Autosave.Work = RealWork);
+        var (h, _) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.BrowserStorage.Work = RealWork);
 
         await h.Tasks.ExportPlan();
 
-        h.Autosave.Stores.Should().Be(0);
-        h.Autosave.Work.Should().Be(RealWork);
+        h.BrowserStorage.Writes.Should().BeEmpty();
+        h.BrowserStorage.Work.Should().Be(RealWork);
     }
 
     [Fact]
@@ -52,13 +52,13 @@ public sealed class OpeningARepo
 
         h.Queries.Should().BeEquivalentTo(new { Mode = AppMode.Architect, HasUnsavedChanges = true });
         h.Queries.Repo.Should().BeNull();
-        h.Autosave.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
+        h.BrowserStorage.Work!.Json.Should().Be(h.Queries.ProjectJsonText);
     }
 
     [Fact]
     public async Task A_repo_with_no_sketch_says_so_and_opens_your_own_work()
     {
-        var (h, started) = await Start("#repo=someone/no-sketch", h => h.Autosave.Work = RealWork);
+        var (h, started) = await Start("#repo=someone/no-sketch", h => h.BrowserStorage.Work = RealWork);
 
         started.StartedAs.Should().Be(StartedAs.Restored);
         started.Problem.Should().Contain("someone/no-sketch").And.Contain("motif/sketch.motifsketch.json");

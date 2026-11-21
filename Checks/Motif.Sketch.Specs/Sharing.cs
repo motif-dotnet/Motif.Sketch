@@ -38,15 +38,15 @@ public sealed class Sharing
     {
         var mine = new AutosavedWork("{ my own work }", "mine.motifsketch.json", null, true);
         var viewer = new Harness();
-        viewer.Autosave.Work = mine;
+        viewer.BrowserStorage.Work = mine;
 
         await viewer.Tasks.Start("#" + SnapshotLink.Fragment(Example.Project()));
         await viewer.Tasks.ExportContextDiagram();
         await viewer.Tasks.ExportSketch();
         await viewer.Tasks.ExportPlan();
 
-        viewer.Autosave.Stores.Should().Be(0);
-        viewer.Autosave.Work.Should().Be(mine);
+        viewer.BrowserStorage.Writes.Should().BeEmpty();
+        viewer.BrowserStorage.Work.Should().Be(mine);
         viewer.DiagramExports.Written.Should().HaveCount(2);
         viewer.PlanExports.Written.Should().ContainSingle();
     }
@@ -60,7 +60,7 @@ public sealed class Sharing
         await viewer.Tasks.MakeCopyToEdit();
 
         viewer.Queries.Should().BeEquivalentTo(new { Mode = AppMode.Architect, HasUnsavedChanges = true, FileName = (string?)null });
-        viewer.Autosave.Work!.Json.Should().Be(viewer.Queries.ProjectJsonText);
+        viewer.BrowserStorage.Work!.Json.Should().Be(viewer.Queries.ProjectJsonText);
         viewer.Tasks.AddElement(ElementType.Storage);
     }
 
@@ -70,7 +70,7 @@ public sealed class Sharing
     public async Task A_bad_link_gives_a_friendly_error_and_opens_the_visitors_own_work(string fragment, string problem)
     {
         var h = new Harness();
-        h.Autosave.Work = new AutosavedWork(Example.Json(), null, null, false);
+        h.BrowserStorage.Work = new AutosavedWork(Example.Json(), null, null, false);
 
         var started = await h.Tasks.Start(fragment);
 
