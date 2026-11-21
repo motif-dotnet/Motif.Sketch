@@ -23,6 +23,8 @@
     <ProjectReference Include="..\Motif.Sketch.Fakes\Motif.Sketch.Fakes.csproj" />
     <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForOpeningRepos\Motif.Sketch.ForOpeningRepos.csproj" />
     <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForAutosaving\Motif.Sketch.ForAutosaving.csproj" />
+    <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForStoringProjects\Motif.Sketch.ForStoringProjects.csproj" />
+    <ProjectReference Include="..\..\Adapters\Motif.Sketch.ForExportingTheGlossary\Motif.Sketch.ForExportingTheGlossary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,35 +1,38 @@
-using Microsoft.JSInterop;
-
 namespace Motif.Sketch.Adapters;
 
 /// <summary>
-/// The project's glossary through the File System Access API where the browser has it, so Export glossary
-/// writes back to the same <c>glossary.md</c>; else upload and download.
+/// The project's glossary over the <see cref="GlossaryFiles"/> Seam, so Export
+/// glossary writes back to the same <c>glossary.md</c> where the browser can
+/// write in place; else it downloads a copy.
 /// </summary>
-public sealed class ForExportingTheGlossaryViaBrowserFiles(IJSRuntime js) : ForExportingTheGlossary, IAsyncDisposable
+public sealed class ForExportingTheGlossaryViaBrowserFiles(GlossaryFiles files)
+    : ForExportingTheGlossary
 {
-    private readonly Lazy<Task<IJSObjectReference>> module =
-        new(() => js.InvokeAsync<IJSObjectReference>("import", "./_content/Motif.Sketch.ForExportingTheGlossary/glossaries.js").AsTask());
+    public bool CanSaveInPlace => files.CanWriteInPlace;
 
-    /// <summary>Set once at startup by feature detection (see <see cref="Detect"/>).</summary>
-    public bool CanSaveInPlace { get; private set; }
+    public Task<OpenedFile?> Open() => files.Open();
 
-    public async Task Detect() => CanSaveInPlace = await (await module.Value).InvokeAsync<bool>("canSaveInPlace");
-
-    public async Task<OpenedFile?> Open()
+    public async Task<SavedFile?> Save(
+        string markdown, string suggestedName, string? handle)
     {
-        var file = await (await module.Value).InvokeAsync<string?[]?>("open");
-        return file is null ? null : new OpenedFile(file[0]!, file[1]!, file[2]);
-    }
-
-    public async Task<SavedFile?> Save(string markdown, string suggestedName, string? handle)
-    {
-        var saved = await (await module.Value).InvokeAsync<string?[]?>("save", markdown, suggestedName, handle);
-        return saved is null ? null : new SavedFile(saved[0]!, saved[1]);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (module.IsValueCreated) await (await module.Value).DisposeAsync();
+        if (!files.CanWriteInPlace)
+        {
+            await files.Download(markdown, suggestedName);
+            return new SavedFile(suggestedName, null);
+        }
+        if (handle is not null)
+        {
+            // A glossary opened was opened to read: the browser asks for
+            // leave to write to it.
+            if (!await files.MayWrite(handle)
+                && !await files.AskToWrite(handle))
+                throw new UnauthorizedAccessException(
+                    "the browser wasn't allowed to write to that file.");
+            return new SavedFile(await files.Write(handle, markdown), handle);
+        }
+        if (await files.PickWhereToSave(suggestedName) is not { } picked)
+            return null;
+        await files.Write(picked.Handle!, markdown);
+        return picked;
     }
 }

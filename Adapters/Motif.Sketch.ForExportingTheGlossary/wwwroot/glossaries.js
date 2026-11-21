@@ -1,9 +1,12 @@
-// The project's glossary (motif/glossary.md): opened, then written back to the same file where the
-// browser has the File System Access API, else downloaded. Handles stay in this module: unlike a project
-// file's, a glossary's handle isn't autosaved, so it lasts only until the page closes.
+// The Glossary Files Fitting: the project's glossary (motif/glossary.md) through the File System Access API where the browser has it, else
+// upload and download. One call to the browser each; the rules are in the C# adapter.
+
+// Handles stay in this module: unlike a project file's, a glossary's handle isn't autosaved, so it lasts only
+// until the page closes.
 const handles = new Map();
 let counter = 0;
 const types = [{ description: "Markdown glossary", accept: { "text/markdown": [".md"] } }];
+const readwrite = { mode: "readwrite" };
 
 function keep(handle) {
   const id = `glossary-${counter++}`;
@@ -11,39 +14,27 @@ function keep(handle) {
   return id;
 }
 
-function download(text, name) {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/markdown" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+// The user closing a picker is declining, not a failure.
+async function declinable(pick) {
+  try {
+    return await pick();
+  } catch (e) {
+    if (e.name === "AbortError") return null;
+    throw e;
+  }
 }
 
-async function write(handle, text) {
-  const writable = await handle.createWritable();
-  await writable.write(text);
-  await writable.close();
-}
-
-export function canSaveInPlace() {
+export function canWriteInPlace() {
   return "showSaveFilePicker" in window;
 }
 
-// Returns [name, text, handleId] or null if the user cancelled.
+// Returns { name, text, handle } or null.
 export async function open() {
   if ("showOpenFilePicker" in window) {
-    let handle;
-    try {
-      [handle] = await window.showOpenFilePicker({ types });
-    } catch (e) {
-      if (e.name === "AbortError") return null;
-      throw e;
-    }
-    const file = await handle.getFile();
-    return [file.name, await file.text(), keep(handle)];
+    const picked = await declinable(() => window.showOpenFilePicker({ types }));
+    if (!picked) return null;
+    const file = await picked[0].getFile();
+    return { name: file.name, text: await file.text(), handle: keep(picked[0]) };
   }
   return await new Promise((resolve, reject) => {
     const input = document.createElement("input");
@@ -52,35 +43,42 @@ export async function open() {
     input.addEventListener("change", async () => {
       const file = input.files?.[0];
       if (!file) return resolve(null);
-      try { resolve([file.name, await file.text(), null]); } catch (e) { reject(e); }
+      try { resolve({ name: file.name, text: await file.text(), handle: null }); } catch (e) { reject(e); }
     });
     input.addEventListener("cancel", () => resolve(null));
     input.click();
   });
 }
 
-// Returns [name, handleId] or null if the user cancelled.
-export async function save(text, suggestedName, handleId) {
-  if (!canSaveInPlace()) {
-    download(text, suggestedName);
-    return [suggestedName, null];
-  }
-  const existing = handleId ? handles.get(handleId) : null;
-  if (existing) {
-    const options = { mode: "readwrite" };
-    if ((await existing.queryPermission(options)) !== "granted" &&
-        (await existing.requestPermission(options)) !== "granted")
-      throw new Error("the browser wasn't allowed to write to that file.");
-    await write(existing, text);
-    return [existing.name, handleId];
-  }
-  let handle;
-  try {
-    handle = await window.showSaveFilePicker({ suggestedName, types });
-  } catch (e) {
-    if (e.name === "AbortError") return null;
-    throw e;
-  }
-  await write(handle, text);
-  return [handle.name, keep(handle)];
+// Returns { name, handle } or null.
+export async function pickWhereToSave(suggestedName) {
+  const handle = await declinable(() => window.showSaveFilePicker({ suggestedName, types }));
+  return handle && { name: handle.name, handle: keep(handle) };
+}
+
+export async function mayWrite(id) {
+  return (await handles.get(id).queryPermission(readwrite)) === "granted";
+}
+
+export async function askToWrite(id) {
+  return (await handles.get(id).requestPermission(readwrite)) === "granted";
+}
+
+export async function write(id, text) {
+  const handle = handles.get(id);
+  const writable = await handle.createWritable();
+  await writable.write(text);
+  await writable.close();
+  return handle.name;
+}
+
+export function download(text, name) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/markdown" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }

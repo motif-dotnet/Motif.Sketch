@@ -11,7 +11,6 @@ public partial class Shell
 {
     private const string WelcomeDismissed = "motif-welcome-dismissed";
 
-    [Inject] private ForStoringProjectsViaBrowserFiles Files { get; set; } = default!;
     [Inject] private ForExportingTheGlossaryViaBrowserFiles Glossaries { get; set; } = default!;
 
     private DotNetObjectReference<Shell>? self;
@@ -62,8 +61,6 @@ public partial class Shell
             var viewport = Browser.WatchViewport(self);
             (phone, narrow) = (viewport[0], viewport[1]);
             Browser.ListenForKeys(self);
-            await Files.Detect();
-            await Glossaries.Detect();
             Ui.Changed += Refresh;
             App.Changed += OnAppChanged;
 

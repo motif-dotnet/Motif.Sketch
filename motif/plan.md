@@ -62,8 +62,8 @@ Motif.Sketch.sln
 | `Motif.Sketch.ForCopying` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.ForOpeningRepos` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.ForExportingTheGlossary` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases`, `Motif.Sketch.ForAutosaving` |
-| `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes`, `Motif.Sketch.ForAutosaving` |
+| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases`, `Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingTheGlossary` |
+| `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes`, `Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingTheGlossary` |
 
 Rules:
 
@@ -233,7 +233,6 @@ Kinds: **Real** is the production adapter; **Fake** is a simple in-process stand
 | User | Web App | Real | Blazor WebAssembly UI | `Motif.Sketch.App` | - | Context diagram: Architect, Viewer |
 | User | Specs | Checks | xUnit | `Motif.Sketch.Specs` | - | Added in the sketch |
 | For storing projects | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.ForStoringProjects` | `ForStoringProjectsViaBrowserFiles` | Context diagram: Project Files |
-| For storing projects | Fake for storing projects | Fake | - | `Motif.Sketch.Fakes` (`ForStoringProjects/`) | `FakeForStoringProjects` | Added in the sketch |
 | For autosaving | IndexedDB | Real | Browser storage | `Motif.Sketch.ForAutosaving` | `ForAutosavingViaIndexedDB` | Context diagram: Browser Storage |
 | For exporting diagrams | SVG Files | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.ForExportingDiagrams` | `ForExportingDiagramsViaSvgFiles` | Context diagram: Diagram Exports |
 | For exporting diagrams | Fake for exporting diagrams | Fake | - | `Motif.Sketch.Fakes` (`ForExportingDiagrams/`) | `FakeForExportingDiagrams` | Added in the sketch |
@@ -244,7 +243,6 @@ Kinds: **Real** is the production adapter; **Fake** is a simple in-process stand
 | For opening repos | GitHub | Real | raw.githubusercontent.com (HttpClient) | `Motif.Sketch.ForOpeningRepos` | `ForOpeningReposViaGitHub` | Context diagram: GitHub |
 | For opening repos | Fake for opening repos | Fake | - | `Motif.Sketch.Fakes` (`ForOpeningRepos/`) | `FakeForOpeningRepos` | Added in the sketch |
 | For exporting the glossary | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.ForExportingTheGlossary` | `ForExportingTheGlossaryViaBrowserFiles` | Context diagram: Glossary Files |
-| For exporting the glossary | Fake for exporting the glossary | Fake | - | `Motif.Sketch.Fakes` (`ForExportingTheGlossary/`) | `FakeForExportingTheGlossary` | Added in the sketch |
 
 For each driven adapter, add the stub class named above implementing its port's interface, in its project's namespace and in the folder shown. For example:
 
@@ -260,22 +258,24 @@ Deep adapters: an adapter with a Seam keeps its own rules, and reaches the outsi
 
 | Port | Adapters | Seam | Real Fitting | Fake Fitting |
 |---|---|---|---|---|
+| For storing projects | Browser Files | `ProjectFiles` | `JsInteropProjectFiles` | `FakeProjectFiles` (`ForStoringProjects/`) |
 | For autosaving | IndexedDB | `BrowserStorage` | `JsInteropBrowserStorage` | `FakeBrowserStorage` (`ForAutosaving/`) |
+| For exporting the glossary | Browser Files | `GlossaryFiles` | `JsInteropGlossaryFiles` | `FakeGlossaryFiles` (`ForExportingTheGlossary/`) |
 
 For each Seam, add the empty interface, its real Fitting and its fake Fitting. Each adapter with a Seam takes it in its one constructor. For example:
 
 ```csharp
 namespace Motif.Sketch.Adapters;
 
-public interface BrowserStorage
+public interface ProjectFiles
 {
 }
 
-public sealed class JsInteropBrowserStorage : BrowserStorage
+public sealed class JsInteropProjectFiles : ProjectFiles
 {
 }
 
-public sealed class ForAutosavingViaIndexedDB(BrowserStorage browserStorage) : ForAutosaving
+public sealed class ForStoringProjectsViaBrowserFiles(ProjectFiles projectFiles) : ForStoringProjects
 {
 }
 ```
@@ -285,7 +285,7 @@ using Motif.Sketch.Adapters;
 
 namespace Motif.Sketch.Fakes;
 
-public sealed class FakeBrowserStorage : BrowserStorage
+public sealed class FakeProjectFiles : ProjectFiles
 {
 }
 ```
@@ -306,7 +306,7 @@ Adapter notes:
 
 ## 7. Fakes and specs
 
-- `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake Fitting, and every fake of a port whose adapters are their own Fittings, with a folder per port (`ForStoringProjects/`, `ForExportingDiagrams/`, `ForExportingThePlan/`, `ForCopying/`, `ForOpeningRepos/`, `ForExportingTheGlossary/`, `ForAutosaving/`). The namespace is flat: `Motif.Sketch.Fakes`.
+- `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake Fitting, and every fake of a port whose adapters are their own Fittings, with a folder per port (`ForExportingDiagrams/`, `ForExportingThePlan/`, `ForCopying/`, `ForOpeningRepos/`, `ForStoringProjects/`, `ForAutosaving/`, `ForExportingTheGlossary/`). The namespace is flat: `Motif.Sketch.Fakes`.
 - `Motif.Sketch.Specs` (`Checks/Motif.Sketch.Specs/`): xUnit. Packages: `Microsoft.NET.Test.Sdk`, `xunit`, `xunit.runner.visualstudio`, `coverlet.collector`, `AwesomeAssertions`. Keep the template's packages and add `AwesomeAssertions`.
   Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire the real adapters over their fake Fittings, and the other fakes, up by hand; there is no composition root yet.
 - The browser adapters (`Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingDiagrams`, `Motif.Sketch.ForExportingThePlan`, `Motif.Sketch.ForCopying`, `Motif.Sketch.ForOpeningRepos`, `Motif.Sketch.ForExportingTheGlossary`) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.

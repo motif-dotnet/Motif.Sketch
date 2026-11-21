@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg width="993.34" height="1077.46" viewBox="-461.11 -543.73 993.34 1077.46" font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif" xmlns="http://www.w3.org/2000/svg">
+<svg width="993.34" height="1017.46" viewBox="-461.11 -513.73 993.34 1017.46" font-family="'IBM Plex Sans', 'Segoe UI', Arial, sans-serif" xmlns="http://www.w3.org/2000/svg">
   <title>Motif Sketch</title>
   <defs>
     <marker id="arrow" viewBox="0 0 12 10" markerWidth="12" markerHeight="10" refX="12" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
       <path d="M0,0 L12,5 L0,10 Z" fill="#52606D" />
     </marker>
   </defs>
-  <rect x="-461.11" y="-543.73" width="993.34" height="1077.46" fill="#FFFFFF" />
+  <rect x="-461.11" y="-513.73" width="993.34" height="1017.46" fill="#FFFFFF" />
   <g class="hexagon">
     <polygon points="0,-170 -147.22,-85 -147.22,85 0,170 147.22,85 147.22,-85" fill="#F8FAFC" stroke="#0F172A" stroke-width="1.5" stroke-linejoin="round" class="outline" />
     <polygon points="-96.09,-114.52 -147.22,-85 -147.22,0 -72,0 -71.73,-6.28 -70.91,-12.5 -69.55,-18.63 -67.66,-24.63 -65.25,-30.43 -62.35,-36 -58.98,-41.3 -55.16,-46.28 -50.91,-50.91 -46.28,-55.16" fill="#FDECEA" stroke="#B03A2E" stroke-width="1" stroke-linejoin="round" />
@@ -37,22 +37,16 @@
     </g>
   </g>
   <g>
-    <line x1="60.77" y1="-239.58" x2="81.8" y2="-458.73" stroke="#0F172A" stroke-width="1" stroke-linecap="round" />
-    <line x1="61.4" y1="-239.51" x2="81.8" y2="-398.73" stroke="#0F172A" stroke-width="1" stroke-linecap="round" />
+    <line x1="61.04" y1="-239.55" x2="81.8" y2="-428.73" stroke="#0F172A" stroke-width="1" stroke-linecap="round" />
     <g class="port" data-id="d6b20c02">
       <line x1="39.45" y1="-147.22" x2="53.68" y2="-200.35" stroke="#0F172A" stroke-width="2" stroke-linecap="round" />
       <circle cx="58.86" cy="-219.67" r="20" fill="#FFFFFF" stroke="#334155" stroke-width="2" class="outline" />
       <text x="58.86" y="-255.67" font-size="14" fill="#334155" text-anchor="end" dominant-baseline="central" font-weight="600">For storing projects</text>
     </g>
     <g class="adapter" data-id="d6b20d03" data-kind="real">
-      <rect x="81.8" y="-483.73" width="230" height="50" rx="4" ry="4" fill="#64748B" stroke="#475569" stroke-width="1.2" class="outline" />
-      <text x="196.8" y="-466.73" font-size="13" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-weight="600">Browser Files</text>
-      <text x="196.8" y="-449.73" font-size="11" fill="#E2E8F0" text-anchor="middle" dominant-baseline="central">File System Access API, download fallback</text>
-    </g>
-    <g class="adapter" data-id="d6b20d04" data-kind="fake">
-      <rect x="81.8" y="-423.73" width="178.69" height="50" rx="4" ry="4" fill="#FFFFFF" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5 3" class="outline" />
-      <text x="171.15" y="-406.73" font-size="13" fill="#0F172A" text-anchor="middle" dominant-baseline="central" font-weight="600">Fake for storing projects</text>
-      <text x="171.15" y="-389.73" font-size="11" fill="#64748B" text-anchor="middle" dominant-baseline="central">Fake</text>
+      <rect x="81.8" y="-453.73" width="230" height="50" rx="4" ry="4" fill="#64748B" stroke="#475569" stroke-width="1.2" class="outline" />
+      <text x="196.8" y="-436.73" font-size="13" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-weight="600">Browser Files</text>
+      <text x="196.8" y="-419.73" font-size="11" fill="#E2E8F0" text-anchor="middle" dominant-baseline="central">File System Access API, download fallback</text>
     </g>
   </g>
   <g>
@@ -145,23 +139,17 @@
     </g>
   </g>
   <g>
-    <line x1="61.04" y1="239.55" x2="81.8" y2="428.73" stroke="#0F172A" stroke-width="1" stroke-linecap="round" />
-    <line x1="60.56" y1="239.6" x2="81.8" y2="488.73" stroke="#0F172A" stroke-width="1" stroke-linecap="round" />
+    <line x1="60.77" y1="239.58" x2="81.8" y2="458.73" stroke="#0F172A" stroke-width="1" stroke-linecap="round" />
     <g class="port" data-id="d6b20c08">
       <line x1="39.45" y1="147.22" x2="53.68" y2="200.35" stroke="#0F172A" stroke-width="2" stroke-linecap="round" />
       <circle cx="58.86" cy="219.67" r="20" fill="#FFFFFF" stroke="#334155" stroke-width="2" class="outline" />
       <text x="58.86" y="255.67" font-size="14" fill="#334155" text-anchor="end" dominant-baseline="central" font-weight="600">For exporting the glossary</text>
     </g>
     <g class="adapter" data-id="d6b20d16" data-kind="real">
-      <rect x="81.8" y="403.73" width="230" height="50" rx="4" ry="4" fill="#64748B" stroke="#475569" stroke-width="1.2" class="outline" />
-      <text x="196.8" y="420.73" font-size="13" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-weight="600">Browser Files</text>
-      <text x="196.8" y="437.73" font-size="11" fill="#E2E8F0" text-anchor="middle" dominant-baseline="central">File System Access API, download fallback</text>
-    </g>
-    <g class="adapter" data-id="d6b20d17" data-kind="fake">
-      <rect x="81.8" y="463.73" width="218.46" height="50" rx="4" ry="4" fill="#FFFFFF" stroke="#64748B" stroke-width="1.2" stroke-dasharray="5 3" class="outline" />
-      <text x="191.03" y="480.73" font-size="13" fill="#0F172A" text-anchor="middle" dominant-baseline="central" font-weight="600">Fake for exporting the glossary</text>
-      <text x="191.03" y="497.73" font-size="11" fill="#64748B" text-anchor="middle" dominant-baseline="central">Fake</text>
+      <rect x="81.8" y="433.73" width="230" height="50" rx="4" ry="4" fill="#64748B" stroke="#475569" stroke-width="1.2" class="outline" />
+      <text x="196.8" y="450.73" font-size="13" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" font-weight="600">Browser Files</text>
+      <text x="196.8" y="467.73" font-size="11" fill="#E2E8F0" text-anchor="middle" dominant-baseline="central">File System Access API, download fallback</text>
     </g>
   </g>
-  <text x="-441.11" y="-513.73" font-size="18" fill="#0F172A" text-anchor="start" dominant-baseline="central" font-weight="600">Motif Sketch</text>
+  <text x="-441.11" y="-483.73" font-size="18" fill="#0F172A" text-anchor="start" dominant-baseline="central" font-weight="600">Motif Sketch</text>
 </svg>

@@ -9,14 +9,20 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<Motif.Sketch.App.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<ForStoringProjectsViaBrowserFiles>();
 // A deep adapter is built over its Seam's real Fitting.
+builder.Services.AddSingleton<JsInteropProjectFiles>();
+builder.Services.AddSingleton<ProjectFiles>(sp =>
+    sp.GetRequiredService<JsInteropProjectFiles>());
+builder.Services.AddSingleton<ForStoringProjectsViaBrowserFiles>();
 builder.Services.AddSingleton<BrowserStorage, JsInteropBrowserStorage>();
 builder.Services.AddSingleton<ForAutosavingViaIndexedDB>();
 builder.Services.AddSingleton<ForExportingDiagramsViaSvgFiles>();
 builder.Services.AddSingleton<ForExportingThePlanViaMarkdownFile>();
 builder.Services.AddSingleton<ForCopyingViaBrowserClipboard>();
 builder.Services.AddSingleton(_ => new ForOpeningReposViaGitHub(new HttpClientHandler()));
+builder.Services.AddSingleton<JsInteropGlossaryFiles>();
+builder.Services.AddSingleton<GlossaryFiles>(sp =>
+    sp.GetRequiredService<JsInteropGlossaryFiles>());
 builder.Services.AddSingleton<ForExportingTheGlossaryViaBrowserFiles>();
 builder.Services.AddSingleton(sp => new MotifSketchApplication(
     sp.GetRequiredService<ForStoringProjectsViaBrowserFiles>(),
@@ -29,4 +35,9 @@ builder.Services.AddSingleton(sp => new MotifSketchApplication(
 builder.Services.AddSingleton<Browser>();
 builder.Services.AddSingleton<Ui>();
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+// The file Fittings find out once, before the app starts, whether this
+// browser can write files in place.
+await host.Services.GetRequiredService<JsInteropProjectFiles>().Load();
+await host.Services.GetRequiredService<JsInteropGlossaryFiles>().Load();
+await host.RunAsync();

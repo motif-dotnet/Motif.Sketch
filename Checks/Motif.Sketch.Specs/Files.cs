@@ -8,13 +8,13 @@ public sealed class Files
         var h = await Harness.WithExample();
         h.Tasks.AddElement(ElementType.SecondaryActor);
         await h.Tasks.SaveAs();
-        var saved = h.Projects.Writes[^1].Json;
+        var saved = h.ProjectFiles.Writes[^1].Text;
 
-        h.Projects.NextOpen = h.Projects.FileOf("again.motifsketch.json", saved);
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("again.motifsketch.json", saved);
         (await h.Tasks.Open()).Succeeded.Should().BeTrue();
         await h.Tasks.SaveAs();
 
-        h.Projects.Writes[^1].Json.Should().Be(saved);
+        h.ProjectFiles.Writes[^1].Text.Should().Be(saved);
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public sealed class Files
         var h = await Harness.Started();
         await h.Tasks.SaveAs();
 
-        var json = h.Projects.Writes[^1].Json;
+        var json = h.ProjectFiles.Writes[^1].Text;
         json.Should().StartWith("{\n  \"schemaVersion\": 1,\n  \"title\": \"Untitled\",\n  \"contextDiagram\": {");
         json.Should().Contain("\"type\": \"system\"").And.NotContain("\"sketch\"");
     }
@@ -33,14 +33,14 @@ public sealed class Files
     {
         var h = await Harness.Started();
         await h.Tasks.SaveAs();
-        h.Projects.Writes[^1].Json.Should().NotContain("codeRoot");
+        h.ProjectFiles.Writes[^1].Text.Should().NotContain("codeRoot");
 
         h.Tasks.SetCodeRoot("Shop.Orders");
         await h.Tasks.SaveAs();
-        var saved = h.Projects.Writes[^1].Json;
+        var saved = h.ProjectFiles.Writes[^1].Text;
         saved.Should().Contain("\"codeRoot\": \"Shop.Orders\"");
 
-        h.Projects.NextOpen = h.Projects.FileOf("again.motifsketch.json", saved);
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("again.motifsketch.json", saved);
         (await h.Tasks.Open()).Succeeded.Should().BeTrue();
         h.System.CodeRoot.Should().Be("Shop.Orders");
     }
@@ -51,14 +51,14 @@ public sealed class Files
         var h = await Harness.WithExample();
         h.ClearSeams();
         await h.Tasks.SaveAs();
-        h.Projects.Writes[^1].Json.Should().NotContain("\"seam\"");
+        h.ProjectFiles.Writes[^1].Text.Should().NotContain("\"seam\"");
 
         h.Tasks.SetAdapterSeam(h.Adapter("IndexedDB").Id, "Browser Storage");
         await h.Tasks.SaveAs();
-        var saved = h.Projects.Writes[^1].Json;
+        var saved = h.ProjectFiles.Writes[^1].Text;
         saved.Should().Contain("\"seam\": \"Browser Storage\"");
 
-        h.Projects.NextOpen = h.Projects.FileOf("again.motifsketch.json", saved);
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("again.motifsketch.json", saved);
         (await h.Tasks.Open()).Succeeded.Should().BeTrue();
         h.Adapter("IndexedDB").Seam.Should().Be("Browser Storage");
     }
@@ -70,7 +70,7 @@ public sealed class Files
         var json = Example.Json().Replace(
             "\"name\": \"Fake for copying\",", "\"name\": \"Fake for copying\",\n            \"seam\": \"Clipboard\",");
         json.Should().Contain("\"seam\"");
-        h.Projects.NextOpen = h.Projects.FileOf("bad.motifsketch.json", json);
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("bad.motifsketch.json", json);
 
         var outcome = await h.Tasks.Open();
 
@@ -82,13 +82,13 @@ public sealed class Files
     public async Task In_save_in_place_browsers_Save_writes_back_to_the_same_file()
     {
         var h = await Harness.Started();
-        h.Projects.NextOpen = h.Projects.FileOf("shop.motifsketch.json", Example.Json());
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("shop.motifsketch.json", Example.Json());
         await h.Tasks.Open();
 
         h.Tasks.AddElement(ElementType.Storage);
         (await h.Tasks.Save()).Succeeded.Should().BeTrue();
 
-        var write = h.Projects.Writes.Should().ContainSingle().Which;
+        var write = h.ProjectFiles.Writes.Should().ContainSingle().Which;
         (write.Name, write.Downloaded).Should().Be(("shop.motifsketch.json", false));
         h.Queries.FileName.Should().Be("shop.motifsketch.json");
         h.Queries.HasUnsavedChanges.Should().BeFalse();
@@ -98,27 +98,27 @@ public sealed class Files
     public async Task Save_as_picks_a_new_file_and_later_saves_go_there()
     {
         var h = await Harness.Started();
-        h.Projects.NextSaveAsName = "mine.motifsketch.json";
+        h.ProjectFiles.NextSaveAsName = "mine.motifsketch.json";
 
         await h.Tasks.SaveAs();
         h.Tasks.AddElement(ElementType.Storage);
         await h.Tasks.Save();
 
-        h.Projects.Writes.Select(w => w.Name).Should().Equal("mine.motifsketch.json", "mine.motifsketch.json");
-        h.Projects.Writes.Select(w => w.Handle).Distinct().Should().ContainSingle();
+        h.ProjectFiles.Writes.Select(w => w.Name).Should().Equal("mine.motifsketch.json", "mine.motifsketch.json");
+        h.ProjectFiles.Writes.Select(w => w.Handle).Distinct().Should().ContainSingle();
     }
 
     [Fact]
     public async Task In_other_browsers_Save_downloads_a_copy()
     {
         var h = await Harness.Started();
-        h.Projects.CanSaveInPlace = false;
+        h.ProjectFiles.CanWriteInPlace = false;
         h.Tasks.RenameProject("Shop");
 
         await h.Tasks.Save();
         await h.Tasks.Save();
 
-        h.Projects.Writes.Should().HaveCount(2).And.OnlyContain(w => w.Downloaded && w.Name == "Shop.motifsketch.json");
+        h.ProjectFiles.Writes.Should().HaveCount(2).And.OnlyContain(w => w.Downloaded && w.Name == "Shop.motifsketch.json");
         h.Queries.HasUnsavedChanges.Should().BeFalse();
     }
 
@@ -127,7 +127,7 @@ public sealed class Files
     {
         var h = await Harness.Started();
         h.Tasks.AddElement(ElementType.Storage);
-        h.Projects.NextSaveAsName = null;
+        h.ProjectFiles.NextSaveAsName = null;
 
         (await h.Tasks.Save()).Cancelled.Should().BeTrue();
 
@@ -138,7 +138,7 @@ public sealed class Files
     public async Task A_failed_save_says_why()
     {
         var h = await Harness.Started();
-        h.Projects.Fail = true;
+        h.ProjectFiles.Fail = true;
 
         var outcome = await h.Tasks.Save();
 
@@ -163,7 +163,7 @@ public sealed class Files
     public async Task A_hand_written_file_without_positions_is_laid_out()
     {
         var h = await Harness.Started();
-        h.Projects.NextOpen = h.Projects.FileOf("hand.motifsketch.json", """
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("hand.motifsketch.json", """
             { "schemaVersion": 1, "title": "Hand", "contextDiagram": {
               "elements": [ { "id": "s", "type": "system", "name": "Sys" }, { "id": "a", "type": "primaryActor", "name": "Person" } ],
               "relationships": [ { "id": "r", "from": "a", "to": "s", "label": "Uses" } ] } }
@@ -192,7 +192,7 @@ public sealed class Files
     {
         var h = await Harness.WithExample();
         var before = h.Queries.ProjectJsonText;
-        h.Projects.NextOpen = h.Projects.FileOf("bad.motifsketch.json", text);
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("bad.motifsketch.json", text);
 
         var outcome = await h.Tasks.Open();
 
@@ -205,7 +205,7 @@ public sealed class Files
     public async Task Every_problem_in_a_file_is_listed()
     {
         var h = await Harness.Started();
-        h.Projects.NextOpen = h.Projects.FileOf("bad.motifsketch.json",
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("bad.motifsketch.json",
             """{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "b", "type": "storage", "name": "" } ] } }""");
 
         var outcome = await h.Tasks.Open();

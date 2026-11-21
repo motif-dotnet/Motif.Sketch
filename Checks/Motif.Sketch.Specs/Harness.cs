@@ -6,21 +6,35 @@ namespace Motif.Sketch.Specs;
 /// <summary>The application wired to every fake driven adapter, driven only through the User port.</summary>
 public sealed class Harness
 {
-    public FakeForStoringProjects Projects { get; } = new();
+    public FakeProjectFiles ProjectFiles { get; }
     public FakeBrowserStorage BrowserStorage { get; } = new();
     public FakeForExportingDiagrams DiagramExports { get; } = new();
     public FakeForExportingThePlan PlanExports { get; } = new();
     public FakeForCopying Clipboard { get; } = new();
     public FakeGitHub GitHub { get; } = new();
-    public FakeForExportingTheGlossary Glossaries { get; } = new();
+    public FakeGlossaryFiles GlossaryFiles { get; } = new();
 
     public MotifSketchApplication App { get; }
     public UserTasks Tasks => App;
     public UserQueries Queries => App;
 
-    public Harness() => App = new MotifSketchApplication(Projects,
-        new ForAutosavingViaIndexedDB(BrowserStorage), DiagramExports, PlanExports, Clipboard,
-        new ForOpeningReposViaGitHub(GitHub), Glossaries);
+    public Harness() : this(new FakeProjectFiles())
+    {
+    }
+
+    /// <summary>An app on these project files, such as the last visit's after a refresh.</summary>
+    public Harness(FakeProjectFiles projectFiles)
+    {
+        ProjectFiles = projectFiles;
+        App = new MotifSketchApplication(
+            new ForStoringProjectsViaBrowserFiles(ProjectFiles),
+            new ForAutosavingViaIndexedDB(BrowserStorage),
+            DiagramExports,
+            PlanExports,
+            Clipboard,
+            new ForOpeningReposViaGitHub(GitHub),
+            new ForExportingTheGlossaryViaBrowserFiles(GlossaryFiles));
+    }
 
     /// <summary>A started app with a blank project.</summary>
     public static async Task<Harness> Started(string? fragment = null)

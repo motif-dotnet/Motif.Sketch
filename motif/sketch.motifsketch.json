@@ -213,15 +213,10 @@
             "technology": "File System Access API, download fallback",
             "description": "Saved projects: one file per system holding the context diagram and, once started, its ports-and-adapters sketch",
             "kind": "real",
+            "seam": "Project Files",
             "sources": [
               "c5a10a05"
             ]
-          },
-          {
-            "id": "d6b20d04",
-            "name": "Fake for storing projects",
-            "kind": "fake",
-            "sources": []
           }
         ]
       },
@@ -358,15 +353,10 @@
             "technology": "File System Access API, download fallback",
             "description": "The project's glossary, motif/glossary.md, which Export glossary adds the sketch's terms to",
             "kind": "real",
+            "seam": "Glossary Files",
             "sources": [
               "c5a10a0b"
             ]
-          },
-          {
-            "id": "d6b20d17",
-            "name": "Fake for exporting the glossary",
-            "kind": "fake",
-            "sources": []
           }
         ]
       }

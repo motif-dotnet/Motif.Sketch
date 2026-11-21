@@ -17,7 +17,7 @@ public sealed class Autosaving
     public async Task The_next_visit_restores_the_work_with_its_file_and_unsaved_marker()
     {
         var first = await Harness.Started();
-        first.Projects.NextSaveAsName = "shop.motifsketch.json";
+        first.ProjectFiles.NextSaveAsName = "shop.motifsketch.json";
         await first.Tasks.SaveAs();
         first.Tasks.AddElement(ElementType.Storage);
 
@@ -35,14 +35,32 @@ public sealed class Autosaving
     {
         var first = await Harness.Started();
         await first.Tasks.SaveAs();
-        var handle = first.Projects.Writes[^1].Handle;
+        var handle = first.ProjectFiles.Writes[^1].Handle;
 
-        var next = new Harness();
+        var next = new Harness(first.ProjectFiles.AfterARefresh());
         next.BrowserStorage.Work = first.BrowserStorage.Work;
         await next.Tasks.Start(null);
-        await next.Tasks.Save();
+        (await next.Tasks.Save()).Succeeded.Should().BeTrue();
 
-        next.Projects.Writes.Should().ContainSingle().Which.Handle.Should().Be(handle);
+        next.ProjectFiles.Writes.Should().ContainSingle().Which.Handle.Should().Be(handle);
+    }
+
+    [Fact]
+    public async Task After_a_refresh_Save_says_so_if_the_browser_isnt_let_write_to_the_file()
+    {
+        var first = await Harness.Started();
+        await first.Tasks.SaveAs();
+
+        var next = new Harness(first.ProjectFiles.AfterARefresh());
+        next.BrowserStorage.Work = first.BrowserStorage.Work;
+        next.ProjectFiles.RefuseWrites = true;
+        await next.Tasks.Start(null);
+        var outcome = await next.Tasks.Save();
+
+        outcome.Succeeded.Should().BeFalse();
+        outcome.Problems.Should().ContainSingle().Which.Should()
+            .Contain("wasn't allowed to write to that file").And.Contain("Save as");
+        next.ProjectFiles.Writes.Should().BeEmpty();
     }
 
     [Fact]
