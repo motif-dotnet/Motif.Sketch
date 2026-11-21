@@ -96,6 +96,13 @@ public static partial class SolutionPlanner
         foreach (var port in ports.Where(IsDeep))
             foreach (var fake in port.Adapters.Where(a => a.Kind == AdapterKind.Fake))
                 warnings.Add($"'{fake.Name}' fakes the whole '{port.Name}' port, but its adapters have Seams, so their fake Fittings stand in for them instead.");
+        // The User port is left out: whether it, too, should be named "For …" is still open.
+        var unnamed = ports.Where(p => !p.IsUser && !p.Name.StartsWith("For ", StringComparison.Ordinal))
+            .Select(p => p.Name).ToList();
+        if (unnamed.Count > 0)
+            warnings.Add(unnamed.Count == 1
+                ? $"'{unnamed[0]}' isn't named for what the app uses it for. Name ports \"For …\", such as \"For storing orders\"."
+                : $"{string.Join(", ", unnamed[..^1])} and {unnamed[^1]} aren't named for what the app uses them for. Name ports \"For …\", such as \"For storing orders\".");
 
         var plannedPorts = ports.Select(p => new PlannedPort(
             p.Name, p.Description, p.Side, p.IsUser, InterfacesFor(p), p.IsUser ? "" : "Ports", planned[p])).ToList();

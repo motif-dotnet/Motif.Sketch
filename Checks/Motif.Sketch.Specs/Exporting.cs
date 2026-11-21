@@ -102,7 +102,7 @@ public sealed class Exporting
         var outcome = await h.Tasks.ExportPlan();
 
         outcome.Succeeded.Should().BeTrue();
-        outcome.Warnings.Should().ContainSingle();
+        outcome.Warnings.Should().ContainSingle(w => w.Contains("Viewer"));
         h.SolutionStubs.Written.Single().Markdown.Should().Contain("- Viewer (primary actor, Web browser (snapshot or repo link))");
     }
 

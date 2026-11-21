@@ -77,7 +77,8 @@ public sealed class PlanningDeepAdapters
         var outcome = await h.Tasks.ExportPlan();
 
         outcome.Succeeded.Should().BeTrue();
-        outcome.Warnings.Should().ContainSingle().Which.Should().Contain("Fake Autosave").And.Contain("fake Fittings");
+        outcome.Warnings.Should().ContainSingle(w => w.Contains("Fake Autosave"))
+            .Which.Should().Contain("fake Fittings");
     }
 
     [Fact]
@@ -137,6 +138,32 @@ public sealed class PlanningDeepAdapters
 
         outcome.Succeeded.Should().BeFalse();
         outcome.Problems.Should().Contain(p => p.Contains(problem));
+    }
+
+    [Fact]
+    public async Task Ports_not_named_for_their_purpose_are_warned_about_in_one_line()
+    {
+        var h = await Harness.WithExample();
+
+        var outcome = await h.Tasks.ExportPlan();
+
+        outcome.Succeeded.Should().BeTrue();
+        outcome.Warnings.Should().ContainSingle(w => w.Contains("For …")).Which.Should()
+            .Contain("Projects, Autosave, Diagram Exports, Solution Stubs, Clipboard, Repos and Glossaries")
+            .And.NotContain("User");
+    }
+
+    [Fact]
+    public async Task Ports_named_for_their_purpose_get_no_such_warning()
+    {
+        var h = await Harness.WithExample();
+        foreach (var port in h.Queries.Sketch!.Ports.Where(p => !p.IsUser))
+            h.Tasks.RenamePort(port.Id, "For " + port.Name.ToLowerInvariant());
+
+        var outcome = await h.Tasks.ExportPlan();
+
+        outcome.Succeeded.Should().BeTrue();
+        outcome.Warnings.Should().BeEmpty();
     }
 
     [Fact]
