@@ -11,9 +11,14 @@ public sealed class Sharing
 
         var outcome = await h.Tasks.CopyLink(Page + "#old");
 
-        outcome.Succeeded.Should().BeTrue();
+        outcome.Should().BeEquivalentTo(new
+        {
+            Succeeded = true,
+            IsLong = false,
+            Title = "Read-only link copied",
+            Text = "It's a snapshot: later edits need a new link.",
+        });
         h.Clipboard.Text!.Should().StartWith(Page + "#v1.").And.Be(outcome.Link);
-        outcome.IsLong.Should().BeFalse();
     }
 
     [Fact]
@@ -100,7 +105,8 @@ public sealed class Sharing
 
         var outcome = await h.Tasks.CopyLink(Page);
 
-        outcome.Should().BeEquivalentTo(new { Succeeded = true, IsLong = true });
+        outcome.Should().BeEquivalentTo(new { Succeeded = true, IsLong = true, Title = "Link copied, but it's long" });
+        outcome.Text.Should().StartWith($"It's {outcome.Link!.Length:N0} characters.");
         h.Clipboard.Text.Should().Be(outcome.Link);
     }
 }

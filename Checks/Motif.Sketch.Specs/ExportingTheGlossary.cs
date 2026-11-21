@@ -30,7 +30,13 @@ public sealed class ExportingTheGlossary
 
         var outcome = await h.Tasks.ExportGlossary(intoExisting: false);
 
-        outcome.Should().BeEquivalentTo(new { Succeeded = true, FileName = "glossary.md" });
+        outcome.Should().BeEquivalentTo(new
+        {
+            Succeeded = true,
+            FileName = "glossary.md",
+            Title = "Saved glossary.md",
+            Text = "4 terms from the sketch, marked proposed. Put it in the repo's motif/ folder.",
+        });
         outcome.Added.Should().Equal("Developer", "Mail", "Orders", "User");
         var md = h.GlossaryFiles.Writes.Single().Text;
         md.Should().StartWith("# Glossary\n");
@@ -63,6 +69,11 @@ public sealed class ExportingTheGlossary
 
         var outcome = await h.Tasks.ExportGlossary(intoExisting: true);
 
+        outcome.Should().BeEquivalentTo(new
+        {
+            Title = "Added 3 terms to glossary.md",
+            Text = "Mail, Orders, User, marked proposed.",
+        });
         outcome.Added.Should().Equal("Mail", "Orders", "User");
         outcome.AlreadyThere.Should().Be(1, "Developer was renamed Dev in the glossary, and its Sketch id finds it");
         var write = h.GlossaryFiles.Writes.Single();
@@ -121,7 +132,13 @@ public sealed class ExportingTheGlossary
 
         var outcome = await h.Tasks.ExportGlossary(intoExisting: true);
 
-        outcome.Should().BeEquivalentTo(new { Succeeded = true, AlreadyThere = 4 });
+        outcome.Should().BeEquivalentTo(new
+        {
+            Succeeded = true,
+            AlreadyThere = 4,
+            Title = "glossary.md already has every term",
+            Text = "Nothing in it was changed.",
+        });
         outcome.Added.Should().BeEmpty();
         h.GlossaryFiles.Writes.Should().ContainSingle("the second export changed nothing, so wrote nothing");
     }
@@ -157,10 +174,11 @@ public sealed class ExportingTheGlossary
         h.GlossaryFiles.CanWriteInPlace = false;
         h.GlossaryFiles.NextOpen = h.GlossaryFiles.FileOf("# Glossary\n", "terms.md");
 
-        await h.Tasks.ExportGlossary(intoExisting: true);
+        var outcome = await h.Tasks.ExportGlossary(intoExisting: true);
 
         h.GlossaryFiles.Writes.Single().Should().Match<WrittenFile>(
             w => w.Downloaded && w.Name == "terms.md");
+        outcome.Title.Should().Be("Downloaded terms.md with 4 terms added");
     }
 
     [Fact]
@@ -172,7 +190,8 @@ public sealed class ExportingTheGlossary
 
         var outcome = await h.Tasks.ExportGlossary(intoExisting: true);
 
-        outcome.Problem.Should().Contain("wasn't allowed to write to that file");
+        outcome.Should().BeEquivalentTo(new { Succeeded = false, Title = "The glossary couldn't be exported" });
+        outcome.Text.Should().Contain("wasn't allowed to write to that file");
         h.GlossaryFiles.Writes.Should().BeEmpty();
     }
 
@@ -196,7 +215,20 @@ public sealed class ExportingTheGlossary
 
         var outcome = await h.Tasks.ExportGlossary(intoExisting: true);
 
-        outcome.Problem.Should().Contain("couldn't be opened");
+        outcome.Text.Should().Contain("couldn't be opened");
+    }
+
+    [Fact]
+    public async Task The_user_is_told_whether_the_glossary_saves_in_place_or_downloads()
+    {
+        var h = await Sketched();
+        var inPlace = h.Queries.HowTheGlossaryIsSaved;
+        h.GlossaryFiles.CanWriteInPlace = false;
+
+        inPlace.Should().Be("The glossary is saved back to the same file.");
+        h.Queries.HowTheGlossaryIsSaved.Should().Be(
+            "This browser can't save in place, so the merged glossary downloads. "
+            + "Edge and Chrome save back to the same file.");
     }
 
     private static string[] Lines(string md) => md.Replace("\r\n", "\n").Split('\n');

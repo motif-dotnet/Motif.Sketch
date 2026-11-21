@@ -41,12 +41,12 @@ public sealed class Ui : Toaster
         }
     }
 
-    /// <summary>Reports an outcome: problems, warnings, or a short note that it worked.</summary>
-    public void Report(Outcome outcome, string done, string failed)
+    /// <summary>Reports an outcome in its own words: problems, warnings, or a short note that it worked.</summary>
+    public void Report(Outcome outcome)
     {
         if (outcome.Cancelled) return;
-        if (!outcome.Succeeded) Problem(failed, outcome.Problems);
-        else if (outcome.Warnings.Count > 0) Warn(done, outcome.Warnings);
-        else Say(done);
+        if (!outcome.Succeeded) Problem(outcome.Title, outcome.Problems);
+        else if (outcome.Warnings.Count > 0) Warn(outcome.Title, outcome.Warnings);
+        else Say(outcome.Title);
     }
 }

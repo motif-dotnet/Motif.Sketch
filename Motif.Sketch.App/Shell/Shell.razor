@@ -234,10 +234,7 @@
                     <button class="x" title="Close" @onclick="() => glossaryDialog = false">@SuiteIcons.Close</button></header>
                 <div class="body">
                     <p>Pick the project's <code>motif/glossary.md</code> to add the terms it doesn't have yet, each marked <i>proposed</i>. Nothing already in it changes: a term counts as there when its <b>Sketch</b> id or its name is.</p>
-                    <p class="help">@(Glossaries.CanSaveInPlace
-                        ? "The glossary is saved back to the same file."
-                        : "This browser can't save in place, so the merged glossary downloads. Edge and Chrome save back to the same file.")
-                        No glossary yet? Start one with every term.</p>
+                    <p class="help">@App.HowTheGlossaryIsSaved No glossary yet? Start one with every term.</p>
                     <div class="row end">
                         <button class="ghost" @onclick="() => glossaryDialog = false">Cancel</button>
                         <button class="ghost" @onclick="() => ExportGlossary(false)">New glossary.md</button>

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using Motif.Sketch.Adapters;
 using Motif.Suite;
 
 namespace Motif.Sketch.App;
@@ -10,8 +9,6 @@ namespace Motif.Sketch.App;
 public partial class Shell
 {
     private const string WelcomeDismissed = "motif-welcome-dismissed";
-
-    [Inject] private ForExportingTheGlossaryViaBrowserFiles Glossaries { get; set; } = default!;
 
     private DotNetObjectReference<Shell>? self;
     private bool started;
@@ -251,7 +248,7 @@ public partial class Shell
         if (!await MayDiscard("Opening a file")) return;
         var outcome = await App.Open();
         if (outcome.Cancelled) return;
-        if (!outcome.Succeeded) { Ui.Problem("That file can't be opened", outcome.Problems); return; }
+        if (!outcome.Succeeded) { Ui.Report(outcome); return; }
         layout = App.HasSketch && !narrow ? "split" : "context";
         fitKey++;
     }
@@ -268,15 +265,13 @@ public partial class Shell
     private async Task Save()
     {
         menu = null;
-        var outcome = await App.Save();
-        Ui.Report(outcome, App.CanSaveInPlace ? $"Saved to {App.FileName}" : $"Downloaded {App.FileName}", "The project couldn't be saved");
+        Ui.Report(await App.Save());
     }
 
     private async Task SaveAs()
     {
         menu = null;
-        var outcome = await App.SaveAs();
-        Ui.Report(outcome, App.CanSaveInPlace ? $"Saved to {App.FileName}" : $"Downloaded {App.FileName}", "The project couldn't be saved");
+        Ui.Report(await App.SaveAs());
     }
 
     private async Task MakeCopy()
@@ -301,27 +296,26 @@ public partial class Shell
     {
         var outcome = await App.CopyLink(Browser.PageUrl());
         if (!outcome.Succeeded) manualLink = outcome.Link;
-        else if (outcome.IsLong)
-            Ui.Warn("Link copied, but it's long", [$"It's {outcome.Link!.Length:N0} characters. Most chat and email tools manage, but some may cut it."]);
-        else Ui.Say("Read-only link copied", "It's a snapshot: later edits need a new link.");
+        else if (outcome.IsLong) Ui.Warn(outcome.Title, [outcome.Text]);
+        else Ui.Say(outcome.Title, outcome.Text);
     }
 
     private async Task ExportContext()
     {
         menu = null;
-        Ui.Report(await App.ExportContextDiagram(), "Context diagram exported", "The context diagram couldn't be exported");
+        Ui.Report(await App.ExportContextDiagram());
     }
 
     private async Task ExportSketch()
     {
         menu = null;
-        Ui.Report(await App.ExportSketch(), "Ports and adapters exported", "The sketch couldn't be exported");
+        Ui.Report(await App.ExportSketch());
     }
 
     private async Task ExportPlan()
     {
         menu = null;
-        Ui.Report(await App.ExportPlan(), "Solution plan exported", "The plan can't be exported yet");
+        Ui.Report(await App.ExportPlan());
     }
 
     private void ShowGlossaryExport()
@@ -335,19 +329,8 @@ public partial class Shell
         glossaryDialog = false;
         var outcome = await App.ExportGlossary(intoExisting);
         if (outcome.Cancelled) return;
-        if (!outcome.Succeeded) { Ui.Problem("The glossary couldn't be exported", [outcome.Problem!]); return; }
-
-        var name = outcome.FileName;
-        var n = outcome.Added.Count;
-        var terms = n == 1 ? "1 term" : $"{n} terms";
-        if (intoExisting && n == 0)
-            Ui.Say($"{name} already has every term", "Nothing in it was changed.");
-        else if (intoExisting)
-            Ui.Say(Glossaries.CanSaveInPlace ? $"Added {terms} to {name}" : $"Downloaded {name} with {terms} added",
-                string.Join(", ", outcome.Added) + ", marked proposed.");
-        else
-            Ui.Say(Glossaries.CanSaveInPlace ? $"Saved {name}" : $"Downloaded {name}",
-                $"{terms} from the sketch, marked proposed. Put it in the repo's motif/ folder.");
+        if (!outcome.Succeeded) Ui.Problem(outcome.Title, [outcome.Text]);
+        else Ui.Say(outcome.Title, outcome.Text);
     }
 
     public void Dispose()

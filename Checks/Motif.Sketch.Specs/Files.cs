@@ -86,8 +86,9 @@ public sealed class Files
         await h.Tasks.Open();
 
         h.Tasks.AddElement(ElementType.Storage);
-        (await h.Tasks.Save()).Succeeded.Should().BeTrue();
+        var outcome = await h.Tasks.Save();
 
+        outcome.Should().BeEquivalentTo(new { Succeeded = true, Title = "Saved to shop.motifsketch.json" });
         var write = h.ProjectFiles.Writes.Should().ContainSingle().Which;
         (write.Name, write.Downloaded).Should().Be(("shop.motifsketch.json", false));
         h.Queries.FileName.Should().Be("shop.motifsketch.json");
@@ -116,8 +117,9 @@ public sealed class Files
         h.Tasks.RenameProject("Shop");
 
         await h.Tasks.Save();
-        await h.Tasks.Save();
+        var outcome = await h.Tasks.Save();
 
+        outcome.Title.Should().Be("Downloaded Shop.motifsketch.json");
         h.ProjectFiles.Writes.Should().HaveCount(2).And.OnlyContain(w => w.Downloaded && w.Name == "Shop.motifsketch.json");
         h.Queries.HasUnsavedChanges.Should().BeFalse();
     }
@@ -142,7 +144,7 @@ public sealed class Files
 
         var outcome = await h.Tasks.Save();
 
-        outcome.Succeeded.Should().BeFalse();
+        outcome.Should().BeEquivalentTo(new { Succeeded = false, Title = "The project couldn't be saved" });
         outcome.Problems.Should().ContainSingle().Which.Should().Contain("disk is full");
     }
 
@@ -196,7 +198,7 @@ public sealed class Files
 
         var outcome = await h.Tasks.Open();
 
-        outcome.Succeeded.Should().BeFalse();
+        outcome.Should().BeEquivalentTo(new { Succeeded = false, Title = "That file can't be opened" });
         outcome.Problems.Should().Contain(p => p.Contains(problem));
         h.Queries.ProjectJsonText.Should().Be(before);
     }

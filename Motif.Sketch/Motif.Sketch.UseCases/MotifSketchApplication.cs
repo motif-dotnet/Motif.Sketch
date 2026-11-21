@@ -8,6 +8,7 @@ namespace Motif.Sketch;
 public sealed class MotifSketchApplication : UserTasks, UserQueries
 {
     public const int HistoryLimit = 200;
+    private const string CantOpen = "That file can't be opened";
 
     private readonly ForStoringProjects projects;
     private readonly ForAutosaving autosave;
@@ -54,6 +55,11 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
     public string? FileName { get; private set; }
     public bool HasUnsavedChanges => version != savedVersion;
     public bool CanSaveInPlace => projects.CanSaveInPlace;
+
+    public string HowTheGlossaryIsSaved => glossaries.CanSaveInPlace
+        ? "The glossary is saved back to the same file."
+        : "This browser can't save in place, so the merged glossary downloads. "
+            + "Edge and Chrome save back to the same file.";
     public bool CanUndo => !IsReadOnly && undo.Count > 0;
     public bool CanRedo => !IsReadOnly && redo.Count > 0;
 
@@ -193,17 +199,17 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         }
         catch (Exception e)
         {
-            return Outcome.Failed($"The file couldn't be opened: {e.Message}");
+            return Outcome.Failed(CantOpen, $"The file couldn't be opened: {e.Message}");
         }
         if (file is null) return Outcome.WasCancelled;
 
         var loaded = ProjectJson.Load(file.Text);
         if (loaded.Project is not { } opened)
-            return Outcome.Failed(loaded.Problems);
+            return Outcome.Failed(CantOpen, loaded.Problems);
         if (loaded.NeedsLayout) ContextLayout.Apply(opened.ContextDiagram);
         Begin(opened, file.Name, file.Handle, saved: true);
         await Persist();
-        return Outcome.Ok();
+        return Outcome.Ok($"Opened {file.Name}");
     }
 
     public Task<Outcome> Save() => SaveTo(fileHandle);
@@ -221,7 +227,7 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         }
         catch (Exception e)
         {
-            return Outcome.Failed($"The project couldn't be saved: {e.Message}");
+            return Outcome.Failed("The project couldn't be saved", $"The project couldn't be saved: {e.Message}");
         }
         if (saved is null) return Outcome.WasCancelled;
 
@@ -230,7 +236,7 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         savedVersion = savingVersion;
         Raise();
         await Persist();
-        return Outcome.Ok();
+        return Outcome.Ok(projects.CanSaveInPlace ? $"Saved to {saved.Name}" : $"Downloaded {saved.Name}");
     }
 
     public async Task MakeCopyToEdit()
@@ -303,22 +309,26 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
 
     public Task<Outcome> ExportContextDiagram() =>
         Export(() => diagramExports.Write(SuggestedName(" - Context Diagram.svg"), SvgWriter.Write(ContextScene)),
-            UnplacedWarnings());
+            UnplacedWarnings(), "Context diagram exported", "The context diagram couldn't be exported");
 
     public Task<Outcome> ExportSketch()
     {
-        if (SketchScene is not { } scene) return Task.FromResult(Outcome.Failed("Start the sketch first."));
+        const string failed = "The sketch couldn't be exported";
+        if (SketchScene is not { } scene) return Task.FromResult(Outcome.Failed(failed, "Start the sketch first."));
         return Export(() => diagramExports.Write(SuggestedName(" - Ports and Adapters.svg"), SvgWriter.Write(scene)),
-            UnplacedWarnings());
+            UnplacedWarnings(), "Ports and adapters exported", failed);
     }
 
     public Task<Outcome> ExportPlan()
     {
-        if (project.Sketch is null) return Task.FromResult(Outcome.Failed("Start the sketch first: the plan is made from it."));
+        const string failed = "The plan can't be exported yet";
+        if (project.Sketch is null)
+            return Task.FromResult(Outcome.Failed(failed, "Start the sketch first: the plan is made from it."));
         var plan = SolutionPlanner.Plan(project);
-        if (plan.Problems.Count > 0) return Task.FromResult(Outcome.Failed(plan.Problems));
+        if (plan.Problems.Count > 0) return Task.FromResult(Outcome.Failed(failed, plan.Problems));
         var markdown = PlanMarkdown.Write(plan);
-        return Export(() => planExports.Write(SuggestedName(" - plan.md"), markdown), plan.Warnings);
+        return Export(() => planExports.Write(SuggestedName(" - plan.md"), markdown), plan.Warnings,
+            "Solution plan exported", failed);
     }
 
     public async Task<GlossaryOutcome> ExportGlossary(bool intoExisting)
@@ -340,7 +350,8 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         var merge = GlossaryExport.Merge(project, existing?.Text);
         // Nothing new: the file is left exactly as it was.
         if (existing is not null && merge.Added.Count == 0)
-            return new GlossaryOutcome(true, false, [], merge.AlreadyThere, existing.Name, null);
+            return new GlossaryOutcome(true, false, [], merge.AlreadyThere, existing.Name,
+                $"{existing.Name} already has every term", "Nothing in it was changed.");
 
         SavedFile? saved;
         try
@@ -352,7 +363,19 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
             return GlossaryOutcome.Failed($"The glossary couldn't be written: {e.Message}");
         }
         if (saved is null) return GlossaryOutcome.WasCancelled;
-        return new GlossaryOutcome(true, false, merge.Added, merge.AlreadyThere, saved.Name, null);
+        var (title, text) = GlossaryWritten(saved.Name, merge.Added, intoExisting);
+        return new GlossaryOutcome(true, false, merge.Added, merge.AlreadyThere, saved.Name, title, text);
+    }
+
+    private (string Title, string Text) GlossaryWritten(string name, IReadOnlyList<string> added, bool intoExisting)
+    {
+        var terms = added.Count == 1 ? "1 term" : $"{added.Count} terms";
+        var inPlace = glossaries.CanSaveInPlace;
+        return intoExisting
+            ? (inPlace ? $"Added {terms} to {name}" : $"Downloaded {name} with {terms} added",
+                string.Join(", ", added) + ", marked proposed.")
+            : (inPlace ? $"Saved {name}" : $"Downloaded {name}",
+                $"{terms} from the sketch, marked proposed. Put it in the repo's motif/ folder.");
     }
 
     public async Task<LinkOutcome> CopyLink(string pageUrl)
@@ -364,20 +387,26 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         }
         catch (Exception e)
         {
-            return new LinkOutcome(false, link, false, $"The link couldn't be copied: {e.Message}");
+            return new LinkOutcome(false, link, false, "The link couldn't be copied",
+                $"The link couldn't be copied: {e.Message}");
         }
-        return new LinkOutcome(true, link, link.Length > SnapshotLink.LongLinkThreshold, null);
+        return link.Length > SnapshotLink.LongLinkThreshold
+            ? new LinkOutcome(true, link, true, "Link copied, but it's long",
+                $"It's {link.Length:N0} characters. Most chat and email tools manage, but some may cut it.")
+            : new LinkOutcome(true, link, false, "Read-only link copied",
+                "It's a snapshot: later edits need a new link.");
     }
 
-    private static async Task<Outcome> Export(Func<Task<bool>> write, IReadOnlyList<string> warnings)
+    private static async Task<Outcome> Export(
+        Func<Task<bool>> write, IReadOnlyList<string> warnings, string done, string failed)
     {
         try
         {
-            return await write() ? Outcome.Ok(warnings) : Outcome.WasCancelled;
+            return await write() ? Outcome.Ok(done, warnings) : Outcome.WasCancelled;
         }
         catch (Exception e)
         {
-            return Outcome.Failed($"The export couldn't be written: {e.Message}");
+            return Outcome.Failed(failed, $"The export couldn't be written: {e.Message}");
         }
     }
 

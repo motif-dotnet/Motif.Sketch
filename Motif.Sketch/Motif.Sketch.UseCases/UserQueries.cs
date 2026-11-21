@@ -32,6 +32,9 @@ public interface UserQueries
     string? FileName { get; }
     bool HasUnsavedChanges { get; }
     bool CanSaveInPlace { get; }
+
+    /// <summary>Whether Export glossary writes back to the file picked or downloads, in a line.</summary>
+    string HowTheGlossaryIsSaved { get; }
     bool CanUndo { get; }
     bool CanRedo { get; }
 

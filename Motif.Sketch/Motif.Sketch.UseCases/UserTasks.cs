@@ -1,12 +1,16 @@
 namespace Motif.Sketch;
 
 /// <summary>What happened when a task touched the outside world.</summary>
-public sealed record Outcome(bool Succeeded, bool Cancelled, IReadOnlyList<string> Problems, IReadOnlyList<string> Warnings)
+/// <param name="Title">What to tell the user: that it worked, or what couldn't be done.</param>
+public sealed record Outcome(
+    string Title, bool Succeeded, bool Cancelled, IReadOnlyList<string> Problems, IReadOnlyList<string> Warnings)
 {
-    public static Outcome Ok(IReadOnlyList<string>? warnings = null) => new(true, false, [], warnings ?? []);
-    public static Outcome WasCancelled { get; } = new(false, true, [], []);
-    public static Outcome Failed(IReadOnlyList<string> problems) => new(false, false, problems, []);
-    public static Outcome Failed(string problem) => new(false, false, [problem], []);
+    public static Outcome Ok(string title, IReadOnlyList<string>? warnings = null) =>
+        new(title, true, false, [], warnings ?? []);
+    public static Outcome WasCancelled { get; } = new("Cancelled", false, true, [], []);
+    public static Outcome Failed(string title, IReadOnlyList<string> problems) =>
+        new(title, false, false, problems, []);
+    public static Outcome Failed(string title, string problem) => new(title, false, false, [problem], []);
 }
 
 /// <summary>How the app came up.</summary>
@@ -33,14 +37,23 @@ public sealed record StartResult(StartedAs StartedAs, string? Problem = null);
 /// <param name="Added">The terms added, alphabetically. Empty on success means the glossary already had them all and wasn't written.</param>
 /// <param name="AlreadyThere">How many of the sketch's terms the glossary already had.</param>
 /// <param name="FileName">The glossary file read or written.</param>
+/// <param name="Title">What to tell the user: what was written, or that it couldn't be.</param>
+/// <param name="Text">The terms added, or why it couldn't be done.</param>
 public sealed record GlossaryOutcome(
-    bool Succeeded, bool Cancelled, IReadOnlyList<string> Added, int AlreadyThere, string? FileName, string? Problem)
+    bool Succeeded, bool Cancelled, IReadOnlyList<string> Added, int AlreadyThere, string? FileName,
+    string Title, string Text)
 {
-    public static GlossaryOutcome WasCancelled { get; } = new(false, true, [], 0, null, null);
-    public static GlossaryOutcome Failed(string problem) => new(false, false, [], 0, null, problem);
+    public static GlossaryOutcome WasCancelled { get; } = new(false, true, [], 0, null, "Cancelled", "");
+    public static GlossaryOutcome Failed(string problem) =>
+        new(false, false, [], 0, null, "The glossary couldn't be exported", problem);
 }
 
-public sealed record LinkOutcome(bool Succeeded, string? Link, bool IsLong, string? Problem);
+/// <summary>What Copy link did.</summary>
+/// <param name="Link">The link, to show for copying by hand when the clipboard failed.</param>
+/// <param name="IsLong">Long enough that some chat and email tools may cut it.</param>
+/// <param name="Title">What to tell the user.</param>
+/// <param name="Text">A line more: why a long link may be cut, or why it couldn't be copied.</param>
+public sealed record LinkOutcome(bool Succeeded, string Link, bool IsLong, string Title, string Text);
 
 /// <summary>Driving port, command half: everything the user can do.</summary>
 /// <remarks>

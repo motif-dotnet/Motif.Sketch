@@ -14,7 +14,8 @@ public sealed class Exporting
     {
         var h = await Harness.WithExample();
 
-        (await h.Tasks.ExportContextDiagram()).Succeeded.Should().BeTrue();
+        (await h.Tasks.ExportContextDiagram()).Should().BeEquivalentTo(
+            new { Succeeded = true, Title = "Context diagram exported" });
 
         var (name, svg) = h.DiagramExports.Written.Should().ContainSingle().Which;
         name.Should().Be("Motif Sketch - Context Diagram.svg");
@@ -88,7 +89,7 @@ public sealed class Exporting
 
         var outcome = await h.Tasks.ExportSketch();
 
-        outcome.Succeeded.Should().BeTrue();
+        outcome.Should().BeEquivalentTo(new { Succeeded = true, Title = "Ports and adapters exported" });
         outcome.Warnings.Should().ContainSingle().Which.Should().Contain(name);
         h.Queries.CheckExport().Unplaced.Should().Equal(name);
     }
@@ -101,7 +102,7 @@ public sealed class Exporting
 
         var outcome = await h.Tasks.ExportPlan();
 
-        outcome.Succeeded.Should().BeTrue();
+        outcome.Should().BeEquivalentTo(new { Succeeded = true, Title = "Solution plan exported" });
         outcome.Warnings.Should().ContainSingle(w => w.Contains("Viewer"));
         h.PlanExports.Written.Single().Markdown.Should().Contain("- Viewer (primary actor, Web browser (snapshot or repo link))");
     }
@@ -117,7 +118,7 @@ public sealed class Exporting
 
         var outcome = await h.Tasks.ExportPlan();
 
-        outcome.Succeeded.Should().BeFalse();
+        outcome.Should().BeEquivalentTo(new { Succeeded = false, Title = "The plan can't be exported yet" });
         outcome.Problems.Should().Contain(p => p.Contains("can't be called"));
         h.PlanExports.Written.Should().BeEmpty();
     }
