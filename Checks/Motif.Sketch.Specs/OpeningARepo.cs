@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Motif.Sketch.Specs;
 
 /// <summary>A <c>#repo=owner/name</c> link: the project every Motif tool opens, here the repo's sketch.</summary>
@@ -8,7 +10,7 @@ public sealed class OpeningARepo
     private static async Task<(Harness Harness, StartResult Started)> Start(string fragment, Action<Harness>? arrange = null)
     {
         var h = new Harness();
-        h.Repos.Add("motif-dotnet/Motif.Sketch", Example.Json());
+        h.GitHub.Commit("motif-dotnet/Motif.Sketch", RepoLink.SketchPath, Example.Json());
         arrange?.Invoke(h);
         var started = await h.Tasks.Start(fragment);
         return (h, started);
@@ -23,7 +25,8 @@ public sealed class OpeningARepo
         var (h, started) = await Start(fragment);
 
         started.Should().Be(new StartResult(StartedAs.Repo));
-        h.Repos.Reads.Should().Equal(new RepoName("motif-dotnet", "Motif.Sketch"));
+        h.GitHub.Requests.Should().Equal(
+            "https://raw.githubusercontent.com/motif-dotnet/Motif.Sketch/HEAD/motif/sketch.motifsketch.json");
         h.Queries.Should().BeEquivalentTo(new { Mode = AppMode.Viewer, IsReadOnly = true, HasSketch = true, Title = "Motif Sketch" });
         h.Queries.Repo.Should().Be(new RepoName("motif-dotnet", "Motif.Sketch"));
         h.Invoking(x => x.Tasks.AddElement(ElementType.Storage)).Should().Throw<ProjectRuleException>();
@@ -66,16 +69,25 @@ public sealed class OpeningARepo
     [Fact]
     public async Task A_repo_GitHub_cant_be_reached_for_says_so()
     {
-        var (_, started) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.Repos.Unreachable = true);
+        var (_, started) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.GitHub.Unreachable = true);
 
         started.StartedAs.Should().Be(StartedAs.Fresh);
         started.Problem.Should().Contain("GitHub couldn't be reached");
     }
 
     [Fact]
+    public async Task A_repo_GitHub_answers_with_an_error_for_says_so()
+    {
+        var (_, started) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.GitHub.Down(HttpStatusCode.ServiceUnavailable));
+
+        started.StartedAs.Should().Be(StartedAs.Fresh);
+        started.Problem.Should().Contain("GitHub couldn't be reached").And.Contain("503");
+    }
+
+    [Fact]
     public async Task A_repo_whose_sketch_isnt_a_sketch_says_so()
     {
-        var (_, started) = await Start("#repo=someone/broken", h => h.Repos.Add("someone/broken", "{ not json"));
+        var (_, started) = await Start("#repo=someone/broken", h => h.GitHub.Commit("someone/broken", RepoLink.SketchPath, "{ not json"));
 
         started.StartedAs.Should().Be(StartedAs.Fresh);
         started.Problem.Should().Contain("isn't a sketch Motif Sketch can open");
@@ -90,7 +102,7 @@ public sealed class OpeningARepo
         var (h, started) = await Start(fragment);
 
         started.Should().Be(new StartResult(StartedAs.Fresh));
-        h.Repos.Reads.Should().BeEmpty();
+        h.GitHub.Requests.Should().BeEmpty();
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using Motif.Sketch.Adapters;
 using Motif.Sketch.Fakes;
 
 namespace Motif.Sketch.Specs;
@@ -10,14 +11,15 @@ public sealed class Harness
     public FakeForExportingDiagrams DiagramExports { get; } = new();
     public FakeForExportingThePlan PlanExports { get; } = new();
     public FakeForCopying Clipboard { get; } = new();
-    public FakeForOpeningRepos Repos { get; } = new();
+    public FakeGitHub GitHub { get; } = new();
     public FakeForExportingTheGlossary Glossaries { get; } = new();
 
     public MotifSketchApplication App { get; }
     public UserTasks Tasks => App;
     public UserQueries Queries => App;
 
-    public Harness() => App = new MotifSketchApplication(Projects, Autosave, DiagramExports, PlanExports, Clipboard, Repos, Glossaries);
+    public Harness() => App = new MotifSketchApplication(Projects, Autosave, DiagramExports, PlanExports, Clipboard,
+        new ForOpeningReposViaGitHub(GitHub), Glossaries);
 
     /// <summary>A started app with a blank project.</summary>
     public static async Task<Harness> Started(string? fragment = null)

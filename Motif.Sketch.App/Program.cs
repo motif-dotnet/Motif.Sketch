@@ -14,7 +14,7 @@ builder.Services.AddSingleton<ForAutosavingViaIndexedDB>();
 builder.Services.AddSingleton<ForExportingDiagramsViaSvgFiles>();
 builder.Services.AddSingleton<ForExportingThePlanViaMarkdownFile>();
 builder.Services.AddSingleton<ForCopyingViaBrowserClipboard>();
-builder.Services.AddSingleton(_ => new ForOpeningReposViaGitHub(new HttpClient()));
+builder.Services.AddSingleton(_ => new ForOpeningReposViaGitHub(new HttpClientHandler()));
 builder.Services.AddSingleton<ForExportingTheGlossaryViaBrowserFiles>();
 builder.Services.AddSingleton(sp => new MotifSketchApplication(
     sp.GetRequiredService<ForStoringProjectsViaBrowserFiles>(),
