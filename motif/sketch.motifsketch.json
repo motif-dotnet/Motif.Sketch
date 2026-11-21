@@ -202,7 +202,7 @@
       },
       {
         "id": "d6b20c02",
-        "name": "Projects",
+        "name": "For storing projects",
         "description": "Opens and saves project files",
         "side": "driven",
         "isUser": false,
@@ -219,7 +219,7 @@
           },
           {
             "id": "d6b20d04",
-            "name": "Fake Projects",
+            "name": "Fake for storing projects",
             "kind": "fake",
             "sources": []
           }
@@ -227,7 +227,7 @@
       },
       {
         "id": "d6b20c03",
-        "name": "Autosave",
+        "name": "For autosaving",
         "description": "Keeps the work in progress and its file handle between visits",
         "side": "driven",
         "isUser": false,
@@ -244,7 +244,7 @@
           },
           {
             "id": "d6b20d06",
-            "name": "Fake Autosave",
+            "name": "Fake for autosaving",
             "kind": "fake",
             "sources": []
           }
@@ -252,7 +252,7 @@
       },
       {
         "id": "d6b20c04",
-        "name": "Diagram Exports",
+        "name": "For exporting diagrams",
         "description": "Writes the context diagram and the sketch as pictures",
         "side": "driven",
         "isUser": false,
@@ -269,7 +269,7 @@
           },
           {
             "id": "d6b20d08",
-            "name": "Fake Diagram Exports",
+            "name": "Fake for exporting diagrams",
             "kind": "fake",
             "sources": []
           }
@@ -277,14 +277,14 @@
       },
       {
         "id": "d6b20c05",
-        "name": "Solution Stubs",
+        "name": "For exporting the plan",
         "description": "Hands the solution stub on to be built; v2 may add a GitHub adapter that inflates it in a repo",
         "side": "driven",
         "isUser": false,
         "adapters": [
           {
             "id": "d6b20d09",
-            "name": "Markdown Plan",
+            "name": "Markdown File",
             "technology": "Browser Files (File System Access API, download fallback)",
             "description": "The solution stub plan a coding agent builds from",
             "kind": "real",
@@ -294,7 +294,7 @@
           },
           {
             "id": "d6b20d10",
-            "name": "Fake Solution Stubs",
+            "name": "Fake for exporting the plan",
             "kind": "fake",
             "sources": []
           }
@@ -302,14 +302,14 @@
       },
       {
         "id": "d6b20c06",
-        "name": "Clipboard",
+        "name": "For copying",
         "description": "Takes the snapshot link when the Architect copies it",
         "side": "driven",
         "isUser": false,
         "adapters": [
           {
             "id": "d6b20d12",
-            "name": "Browser",
+            "name": "Browser Clipboard",
             "technology": "Browser Clipboard API (JS interop)",
             "description": "Where Copy link puts a snapshot link, ready to paste",
             "kind": "real",
@@ -319,7 +319,7 @@
           },
           {
             "id": "d6b20d13",
-            "name": "Fake Clipboard",
+            "name": "Fake for copying",
             "kind": "fake",
             "sources": []
           }
@@ -327,7 +327,7 @@
       },
       {
         "id": "d6b20c07",
-        "name": "Repos",
+        "name": "For opening repos",
         "description": "Reads a public GitHub repo's sketch from its default branch",
         "side": "driven",
         "isUser": false,
@@ -344,7 +344,7 @@
           },
           {
             "id": "d6b20d15",
-            "name": "Fake Repos",
+            "name": "Fake for opening repos",
             "kind": "fake",
             "sources": []
           }
@@ -352,7 +352,7 @@
       },
       {
         "id": "d6b20c08",
-        "name": "Glossaries",
+        "name": "For exporting the glossary",
         "description": "Opens the project's glossary and writes it back with the sketch's new terms",
         "side": "driven",
         "isUser": false,
@@ -369,7 +369,7 @@
           },
           {
             "id": "d6b20d17",
-            "name": "Fake Glossaries",
+            "name": "Fake for exporting the glossary",
             "kind": "fake",
             "sources": []
           }

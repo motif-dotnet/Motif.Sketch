@@ -103,7 +103,7 @@ public sealed class Exporting
 
         outcome.Succeeded.Should().BeTrue();
         outcome.Warnings.Should().ContainSingle(w => w.Contains("Viewer"));
-        h.SolutionStubs.Written.Single().Markdown.Should().Contain("- Viewer (primary actor, Web browser (snapshot or repo link))");
+        h.PlanExports.Written.Single().Markdown.Should().Contain("- Viewer (primary actor, Web browser (snapshot or repo link))");
     }
 
     [Theory]
@@ -113,24 +113,24 @@ public sealed class Exporting
     public async Task A_reserved_port_name_blocks_the_plan(string name)
     {
         var h = await Harness.WithExample();
-        h.Tasks.RenamePort(h.Port("Clipboard").Id, name);
+        h.Tasks.RenamePort(h.Port("For copying").Id, name);
 
         var outcome = await h.Tasks.ExportPlan();
 
         outcome.Succeeded.Should().BeFalse();
         outcome.Problems.Should().Contain(p => p.Contains("can't be called"));
-        h.SolutionStubs.Written.Should().BeEmpty();
+        h.PlanExports.Written.Should().BeEmpty();
     }
 
     [Fact]
     public async Task Clashing_class_names_block_the_plan()
     {
         var h = await Harness.WithExample();
-        h.Tasks.RenamePort(h.Port("Clipboard").Id, "Autosave");
+        h.Tasks.RenamePort(h.Port("For copying").Id, "For autosaving");
 
         var outcome = await h.Tasks.ExportPlan();
 
-        outcome.Problems.Should().Contain(p => p.Contains("interface called 'Autosave'"));
+        outcome.Problems.Should().Contain(p => p.Contains("interface called 'ForAutosaving'"));
     }
 
     [Fact]
@@ -153,7 +153,7 @@ public sealed class Exporting
         (await h.Tasks.ExportPlan()).Succeeded.Should().BeTrue();
 
         h.System.CodeRoot.Should().Be("Motif.Sketch");
-        h.SolutionStubs.Written.Single().Markdown.Should().Contain("`Motif.Sketch.Domain`").And.NotContain("MotifSketch.");
+        h.PlanExports.Written.Single().Markdown.Should().Contain("`Motif.Sketch.Domain`").And.NotContain("MotifSketch.");
         h.Queries.Sketch!.Title.Should().Be("Motif Sketch");
     }
 
@@ -167,7 +167,7 @@ public sealed class Exporting
 
         h.System.CodeRoot.Should().BeNull();
         (await h.Tasks.ExportPlan()).Succeeded.Should().BeTrue();
-        h.SolutionStubs.Written.Single().Markdown.Should().Contain("`MotifSketch.Domain`");
+        h.PlanExports.Written.Single().Markdown.Should().Contain("`MotifSketch.Domain`");
     }
 
     [Fact]
@@ -193,13 +193,13 @@ public sealed class Exporting
     public async Task Each_port_gets_a_fake_or_checks_even_if_none_is_drawn()
     {
         var h = await Harness.WithExample();
-        h.Tasks.RemoveAdapter(h.Adapter("Fake Clipboard").Id);
+        h.Tasks.RemoveAdapter(h.Adapter("Fake for copying").Id);
         h.Tasks.RemoveAdapter(h.Adapter("Specs").Id);
 
         await h.Tasks.ExportPlan();
 
-        var md = h.SolutionStubs.Written.Single().Markdown;
-        md.Should().Contain("| Clipboard | Fake Clipboard | Fake | - | `Motif.Sketch.Fakes` (`Clipboard/`) | `FakeClipboard` | Added by the plan");
+        var md = h.PlanExports.Written.Single().Markdown;
+        md.Should().Contain("| For copying | Fake for copying | Fake | - | `Motif.Sketch.Fakes` (`ForCopying/`) | `FakeForCopying` | Added by the plan");
         md.Should().Contain("| User | Specs | Checks | xUnit | `Motif.Sketch.Specs` | - | Added by the plan");
     }
 
@@ -214,7 +214,7 @@ public sealed class Exporting
 
         (await h.Tasks.ExportPlan()).Succeeded.Should().BeTrue();
 
-        var (name, markdown) = h.SolutionStubs.Written.Single();
+        var (name, markdown) = h.PlanExports.Written.Single();
         name.Should().Be("Motif Sketch - plan.md");
         MatchesGolden("plan.md", markdown);
     }

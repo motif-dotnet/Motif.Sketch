@@ -67,14 +67,14 @@ public sealed class Files
     {
         var h = await Harness.Started();
         var json = Example.Json().Replace(
-            "\"name\": \"Fake Clipboard\",", "\"name\": \"Fake Clipboard\",\n            \"seam\": \"Clipboard\",");
+            "\"name\": \"Fake for copying\",", "\"name\": \"Fake for copying\",\n            \"seam\": \"Clipboard\",");
         json.Should().Contain("\"seam\"");
         h.Projects.NextOpen = h.Projects.FileOf("bad.motifsketch.json", json);
 
         var outcome = await h.Tasks.Open();
 
         outcome.Succeeded.Should().BeFalse();
-        outcome.Problems.Should().Contain(p => p.Contains("Fake Clipboard") && p.Contains("Seam"));
+        outcome.Problems.Should().Contain(p => p.Contains("Fake for copying") && p.Contains("Seam"));
     }
 
     [Fact]

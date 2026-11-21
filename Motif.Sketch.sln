@@ -13,15 +13,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.UseCases", "Mo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapters", "Adapters", "{09DF2EE5-5FE7-3EC7-59CB-CAD7E0928979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Autosave", "Adapters\Motif.Sketch.Autosave\Motif.Sketch.Autosave.csproj", "{D41F5CAA-EC09-4C50-AAC0-0C184628CB63}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForAutosaving", "Adapters\Motif.Sketch.ForAutosaving\Motif.Sketch.ForAutosaving.csproj", "{D41F5CAA-EC09-4C50-AAC0-0C184628CB63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Clipboard", "Adapters\Motif.Sketch.Clipboard\Motif.Sketch.Clipboard.csproj", "{AB782494-507A-4135-A3EC-8397EA282DBB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForCopying", "Adapters\Motif.Sketch.ForCopying\Motif.Sketch.ForCopying.csproj", "{AB782494-507A-4135-A3EC-8397EA282DBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.DiagramExports", "Adapters\Motif.Sketch.DiagramExports\Motif.Sketch.DiagramExports.csproj", "{87F59F89-B076-4920-95F3-1DE4AA6B3147}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForExportingDiagrams", "Adapters\Motif.Sketch.ForExportingDiagrams\Motif.Sketch.ForExportingDiagrams.csproj", "{87F59F89-B076-4920-95F3-1DE4AA6B3147}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Projects", "Adapters\Motif.Sketch.Projects\Motif.Sketch.Projects.csproj", "{E00E0197-0935-4DE3-94D6-DF18A778DF7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForStoringProjects", "Adapters\Motif.Sketch.ForStoringProjects\Motif.Sketch.ForStoringProjects.csproj", "{E00E0197-0935-4DE3-94D6-DF18A778DF7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.SolutionStubs", "Adapters\Motif.Sketch.SolutionStubs\Motif.Sketch.SolutionStubs.csproj", "{C7C6B830-27C7-4C8B-AEA5-BCC33578E044}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForExportingThePlan", "Adapters\Motif.Sketch.ForExportingThePlan\Motif.Sketch.ForExportingThePlan.csproj", "{C7C6B830-27C7-4C8B-AEA5-BCC33578E044}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Checks", "Checks", "{36CBE016-26E7-D9D2-6ED5-AE44737356E1}"
 EndProject
@@ -29,9 +29,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Fakes", "Check
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Specs", "Checks\Motif.Sketch.Specs\Motif.Sketch.Specs.csproj", "{2CC821F5-CBED-4E76-8434-81331C71033B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Repos", "Adapters\Motif.Sketch.Repos\Motif.Sketch.Repos.csproj", "{84574CD5-AF76-4CBD-AF23-7E17713639BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForOpeningRepos", "Adapters\Motif.Sketch.ForOpeningRepos\Motif.Sketch.ForOpeningRepos.csproj", "{84574CD5-AF76-4CBD-AF23-7E17713639BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.Glossaries", "Adapters\Motif.Sketch.Glossaries\Motif.Sketch.Glossaries.csproj", "{F182F37D-6100-4998-ADFB-8B8C08DCF5A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForExportingTheGlossary", "Adapters\Motif.Sketch.ForExportingTheGlossary\Motif.Sketch.ForExportingTheGlossary.csproj", "{F182F37D-6100-4998-ADFB-8B8C08DCF5A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

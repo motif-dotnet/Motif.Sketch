@@ -14,13 +14,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Motif.Sketch\Motif.Sketch.UseCases\Motif.Sketch.UseCases.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.Projects\Motif.Sketch.Projects.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.Autosave\Motif.Sketch.Autosave.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.DiagramExports\Motif.Sketch.DiagramExports.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.SolutionStubs\Motif.Sketch.SolutionStubs.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.Clipboard\Motif.Sketch.Clipboard.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.Repos\Motif.Sketch.Repos.csproj" />
-    <ProjectReference Include="..\Adapters\Motif.Sketch.Glossaries\Motif.Sketch.Glossaries.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForStoringProjects\Motif.Sketch.ForStoringProjects.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForAutosaving\Motif.Sketch.ForAutosaving.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForExportingDiagrams\Motif.Sketch.ForExportingDiagrams.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForExportingThePlan\Motif.Sketch.ForExportingThePlan.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForCopying\Motif.Sketch.ForCopying.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForOpeningRepos\Motif.Sketch.ForOpeningRepos.csproj" />
+    <ProjectReference Include="..\Adapters\Motif.Sketch.ForExportingTheGlossary\Motif.Sketch.ForExportingTheGlossary.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,13 +9,13 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
 {
     public const int HistoryLimit = 200;
 
-    private readonly Projects projects;
-    private readonly Autosave autosave;
-    private readonly DiagramExports diagramExports;
-    private readonly SolutionStubs solutionStubs;
-    private readonly Clipboard clipboard;
-    private readonly Repos repos;
-    private readonly Glossaries glossaries;
+    private readonly ForStoringProjects projects;
+    private readonly ForAutosaving autosave;
+    private readonly ForExportingDiagrams diagramExports;
+    private readonly ForExportingThePlan planExports;
+    private readonly ForCopying clipboard;
+    private readonly ForOpeningRepos repos;
+    private readonly ForExportingTheGlossary glossaries;
 
     private readonly LinkedList<(Project Project, int Version)> undo = new();
     private readonly Stack<(Project Project, int Version)> redo = new();
@@ -28,13 +28,13 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
     private Views? views;
 
     public MotifSketchApplication(
-        Projects projects, Autosave autosave, DiagramExports diagramExports, SolutionStubs solutionStubs, Clipboard clipboard,
-        Repos repos, Glossaries glossaries)
+        ForStoringProjects projects, ForAutosaving autosave, ForExportingDiagrams diagramExports, ForExportingThePlan planExports, ForCopying clipboard,
+        ForOpeningRepos repos, ForExportingTheGlossary glossaries)
     {
         this.projects = projects;
         this.autosave = autosave;
         this.diagramExports = diagramExports;
-        this.solutionStubs = solutionStubs;
+        this.planExports = planExports;
         this.clipboard = clipboard;
         this.repos = repos;
         this.glossaries = glossaries;
@@ -318,7 +318,7 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         var plan = SolutionPlanner.Plan(project);
         if (plan.Problems.Count > 0) return Task.FromResult(Outcome.Failed(plan.Problems));
         var markdown = PlanMarkdown.Write(plan);
-        return Export(() => solutionStubs.Write(SuggestedName(" - plan.md"), markdown), plan.Warnings);
+        return Export(() => planExports.Write(SuggestedName(" - plan.md"), markdown), plan.Warnings);
     }
 
     public async Task<GlossaryOutcome> ExportGlossary(bool intoExisting)

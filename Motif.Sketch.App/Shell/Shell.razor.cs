@@ -11,8 +11,8 @@ public partial class Shell
 {
     private const string WelcomeDismissed = "motif-welcome-dismissed";
 
-    [Inject] private BrowserFilesProjects Files { get; set; } = default!;
-    [Inject] private BrowserFilesGlossaries Glossaries { get; set; } = default!;
+    [Inject] private ForStoringProjectsViaBrowserFiles Files { get; set; } = default!;
+    [Inject] private ForExportingTheGlossaryViaBrowserFiles Glossaries { get; set; } = default!;
 
     private DotNetObjectReference<Shell>? self;
     private bool started;

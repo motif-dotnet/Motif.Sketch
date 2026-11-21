@@ -323,8 +323,11 @@ public sealed class Project
         _ => "System",
     };
 
-    /// <summary>A port named "For …" is a purpose, so it follows another word in lower case.</summary>
-    private static string Purpose(string portName) =>
+    /// <summary>
+    /// A port's name as it reads after another word, such as "Fake": a port named "For …" is a
+    /// purpose, so it goes into lower case.
+    /// </summary>
+    public static string Purpose(string portName) =>
         portName.StartsWith("For ", StringComparison.Ordinal) ? "for" + portName[3..] : portName;
 
     private Sketch RequireSketch() =>

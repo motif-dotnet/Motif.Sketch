@@ -18,7 +18,7 @@ public sealed class PlanningDeepAdapters
     {
         var outcome = await h.Tasks.ExportPlan();
         outcome.Problems.Should().BeEmpty();
-        return h.SolutionStubs.Written.Single().Markdown;
+        return h.PlanExports.Written.Single().Markdown;
     }
 
     [Fact]
@@ -47,26 +47,26 @@ public sealed class PlanningDeepAdapters
     public async Task A_deep_adapter_gets_its_Seam_with_a_real_and_a_fake_Fitting_in_place_of_a_port_fake()
     {
         var h = await WithDeepAutosave();
-        h.Tasks.RemoveAdapter(h.Adapter("Fake Autosave").Id);
+        h.Tasks.RemoveAdapter(h.Adapter("Fake for autosaving").Id);
 
         var md = await Plan(h);
 
         md.Should().Contain(
-            "| Autosave | IndexedDB | `BrowserStorage` | `JsInteropBrowserStorage` | `FakeBrowserStorage` (`Autosave/`) |");
-        md.Should().Contain("public sealed class AutosaveViaIndexedDB(BrowserStorage browserStorage) : Autosave");
-        md.Should().NotContain("FakeAutosave");
+            "| For autosaving | IndexedDB | `BrowserStorage` | `JsInteropBrowserStorage` | `FakeBrowserStorage` (`ForAutosaving/`) |");
+        md.Should().Contain("public sealed class ForAutosavingViaIndexedDB(BrowserStorage browserStorage) : ForAutosaving");
+        md.Should().NotContain("FakeForAutosaving");
     }
 
     [Fact]
     public async Task A_port_with_an_adapter_that_is_its_own_Fitting_still_gets_a_port_fake()
     {
         var h = await WithDeepAutosave();
-        h.Tasks.RemoveAdapter(h.Adapter("Fake Autosave").Id);
-        h.Tasks.AddAdapter(h.Port("Autosave").Id, AdapterKind.Simulated);
+        h.Tasks.RemoveAdapter(h.Adapter("Fake for autosaving").Id);
+        h.Tasks.AddAdapter(h.Port("For autosaving").Id, AdapterKind.Simulated);
 
         var md = await Plan(h);
 
-        md.Should().Contain("| Autosave | Fake Autosave | Fake | - | `Motif.Sketch.Fakes` (`Autosave/`) | `FakeAutosave` | Added by the plan");
+        md.Should().Contain("| For autosaving | Fake for autosaving | Fake | - | `Motif.Sketch.Fakes` (`ForAutosaving/`) | `FakeForAutosaving` | Added by the plan");
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public sealed class PlanningDeepAdapters
         var outcome = await h.Tasks.ExportPlan();
 
         outcome.Succeeded.Should().BeTrue();
-        outcome.Warnings.Should().ContainSingle(w => w.Contains("Fake Autosave"))
+        outcome.Warnings.Should().ContainSingle(w => w.Contains("Fake for autosaving"))
             .Which.Should().Contain("fake Fittings");
     }
 
@@ -86,9 +86,9 @@ public sealed class PlanningDeepAdapters
     {
         var md = await Plan(await WithDeepAutosave());
 
-        md.Should().Contain("| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases`, `Motif.Sketch.Autosave` |");
+        md.Should().Contain("| `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases`, `Motif.Sketch.ForAutosaving` |");
         md.Should().Contain(
-            "| `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes`, `Motif.Sketch.Autosave` |");
+            "| `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes`, `Motif.Sketch.ForAutosaving` |");
     }
 
     [Fact]
@@ -104,31 +104,31 @@ public sealed class PlanningDeepAdapters
     public async Task A_ports_real_adapters_are_offered_in_the_order_drawn()
     {
         var h = await Harness.WithExample();
-        var port = h.Port("Projects").Id;
+        var port = h.Port("For storing projects").Id;
         h.Tasks.RenameAdapter(h.Tasks.AddAdapter(port), "Download");
 
         var md = await Plan(h);
 
-        md.Should().Contain("On Projects, the real adapters are offered in this order: Browser Files, then Download.");
+        md.Should().Contain("On For storing projects, the real adapters are offered in this order: Browser Files, then Download.");
     }
 
     [Fact]
     public async Task Two_adapters_on_a_port_can_share_a_Seam()
     {
         var h = await WithDeepAutosave();
-        var other = h.Tasks.AddAdapter(h.Port("Autosave").Id);
+        var other = h.Tasks.AddAdapter(h.Port("For autosaving").Id);
         h.Tasks.RenameAdapter(other, "Local Storage");
         h.Tasks.SetAdapterSeam(other, "Browser Storage");
 
         var md = await Plan(h);
 
-        md.Should().Contain("| Autosave | IndexedDB, Local Storage | `BrowserStorage` |");
+        md.Should().Contain("| For autosaving | IndexedDB, Local Storage | `BrowserStorage` |");
     }
 
     [Theory]
     [InlineData("42", "usable code name")]
-    [InlineData("Clipboard", "interface called 'Clipboard'")]
-    [InlineData("Projects Via Browser Files", "class called 'ProjectsViaBrowserFiles'")]
+    [InlineData("For copying", "interface called 'ForCopying'")]
+    [InlineData("For storing projects via browser files", "class called 'ForStoringProjectsViaBrowserFiles'")]
     public async Task A_Seam_that_cant_be_named_blocks_the_plan(string seam, string problem)
     {
         var h = await Harness.WithExample();
@@ -144,12 +144,15 @@ public sealed class PlanningDeepAdapters
     public async Task Ports_not_named_for_their_purpose_are_warned_about_in_one_line()
     {
         var h = await Harness.WithExample();
+        h.Tasks.RenamePort(h.Port("For storing projects").Id, "Projects");
+        h.Tasks.RenamePort(h.Port("For autosaving").Id, "Autosave");
+        h.Tasks.RenamePort(h.Port("For copying").Id, "Clipboard");
 
         var outcome = await h.Tasks.ExportPlan();
 
         outcome.Succeeded.Should().BeTrue();
         outcome.Warnings.Should().ContainSingle(w => w.Contains("For …")).Which.Should()
-            .Contain("Projects, Autosave, Diagram Exports, Solution Stubs, Clipboard, Repos and Glossaries")
+            .Contain("Projects, Autosave and Clipboard")
             .And.NotContain("User");
     }
 
@@ -157,8 +160,6 @@ public sealed class PlanningDeepAdapters
     public async Task Ports_named_for_their_purpose_get_no_such_warning()
     {
         var h = await Harness.WithExample();
-        foreach (var port in h.Queries.Sketch!.Ports.Where(p => !p.IsUser))
-            h.Tasks.RenamePort(port.Id, "For " + port.Name.ToLowerInvariant());
 
         var outcome = await h.Tasks.ExportPlan();
 

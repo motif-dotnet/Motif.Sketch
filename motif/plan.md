@@ -21,13 +21,13 @@ Motif.Sketch.sln
     Motif.Sketch.Domain/
     Motif.Sketch.UseCases/
   Adapters/
-    Motif.Sketch.Projects/
-    Motif.Sketch.Autosave/
-    Motif.Sketch.DiagramExports/
-    Motif.Sketch.SolutionStubs/
-    Motif.Sketch.Clipboard/
-    Motif.Sketch.Repos/
-    Motif.Sketch.Glossaries/
+    Motif.Sketch.ForStoringProjects/
+    Motif.Sketch.ForAutosaving/
+    Motif.Sketch.ForExportingDiagrams/
+    Motif.Sketch.ForExportingThePlan/
+    Motif.Sketch.ForCopying/
+    Motif.Sketch.ForOpeningRepos/
+    Motif.Sketch.ForExportingTheGlossary/
   Checks/
     Motif.Sketch.Fakes/
     Motif.Sketch.Specs/
@@ -38,13 +38,13 @@ Motif.Sketch.sln
 | `Motif.Sketch.App` | `Motif.Sketch.App/` | `blazorwasm` | `Motif.Sketch.App` | The app: runnable adapter on the User port |
 | `Motif.Sketch.Domain` | `Motif.Sketch/Motif.Sketch.Domain/` | `classlib` | `Motif.Sketch` | Domain-specific business rules |
 | `Motif.Sketch.UseCases` | `Motif.Sketch/Motif.Sketch.UseCases/` | `classlib` | `Motif.Sketch` | Application rules (use cases) and all port interfaces |
-| `Motif.Sketch.Projects` | `Adapters/Motif.Sketch.Projects/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Projects port |
-| `Motif.Sketch.Autosave` | `Adapters/Motif.Sketch.Autosave/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Autosave port |
-| `Motif.Sketch.DiagramExports` | `Adapters/Motif.Sketch.DiagramExports/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Diagram Exports port |
-| `Motif.Sketch.SolutionStubs` | `Adapters/Motif.Sketch.SolutionStubs/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Solution Stubs port |
-| `Motif.Sketch.Clipboard` | `Adapters/Motif.Sketch.Clipboard/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Clipboard port |
-| `Motif.Sketch.Repos` | `Adapters/Motif.Sketch.Repos/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Repos port |
-| `Motif.Sketch.Glossaries` | `Adapters/Motif.Sketch.Glossaries/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the Glossaries port |
+| `Motif.Sketch.ForStoringProjects` | `Adapters/Motif.Sketch.ForStoringProjects/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For storing projects port |
+| `Motif.Sketch.ForAutosaving` | `Adapters/Motif.Sketch.ForAutosaving/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For autosaving port |
+| `Motif.Sketch.ForExportingDiagrams` | `Adapters/Motif.Sketch.ForExportingDiagrams/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For exporting diagrams port |
+| `Motif.Sketch.ForExportingThePlan` | `Adapters/Motif.Sketch.ForExportingThePlan/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For exporting the plan port |
+| `Motif.Sketch.ForCopying` | `Adapters/Motif.Sketch.ForCopying/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For copying port |
+| `Motif.Sketch.ForOpeningRepos` | `Adapters/Motif.Sketch.ForOpeningRepos/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For opening repos port |
+| `Motif.Sketch.ForExportingTheGlossary` | `Adapters/Motif.Sketch.ForExportingTheGlossary/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For exporting the glossary port |
 | `Motif.Sketch.Fakes` | `Checks/Motif.Sketch.Fakes/` | `classlib` | `Motif.Sketch.Fakes` | Fake driven adapters, for specs |
 | `Motif.Sketch.Specs` | `Checks/Motif.Sketch.Specs/` | `xunit` | `Motif.Sketch.Specs` | Specs: the checks on every driving port |
 
@@ -55,13 +55,13 @@ Motif.Sketch.sln
 | `Motif.Sketch.App` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.Domain` | nothing |
 | `Motif.Sketch.UseCases` | `Motif.Sketch.Domain` |
-| `Motif.Sketch.Projects` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Autosave` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.DiagramExports` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.SolutionStubs` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Clipboard` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Repos` | `Motif.Sketch.UseCases` |
-| `Motif.Sketch.Glossaries` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForStoringProjects` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForAutosaving` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForExportingDiagrams` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForExportingThePlan` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForCopying` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForOpeningRepos` | `Motif.Sketch.UseCases` |
+| `Motif.Sketch.ForExportingTheGlossary` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.Fakes` | `Motif.Sketch.UseCases` |
 | `Motif.Sketch.Specs` | `Motif.Sketch.UseCases`, `Motif.Sketch.Fakes` |
 
@@ -91,13 +91,13 @@ Motif.Sketch.UseCases/
   UserQueries.cs
   MotifSketchApplication.cs
   Ports/
-    Projects.cs
-    Autosave.cs
-    DiagramExports.cs
-    SolutionStubs.cs
-    Clipboard.cs
-    Repos.cs
-    Glossaries.cs
+    ForStoringProjects.cs
+    ForAutosaving.cs
+    ForExportingDiagrams.cs
+    ForExportingThePlan.cs
+    ForCopying.cs
+    ForOpeningRepos.cs
+    ForExportingTheGlossary.cs
 ```
 
 ### User (driving)
@@ -124,100 +124,100 @@ public interface UserQueries
 }
 ```
 
-### Projects (driven)
+### For storing projects (driven)
 
 Opens and saves project files
 
-`Ports/Projects.cs`:
+`Ports/ForStoringProjects.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface Projects
+public interface ForStoringProjects
 {
 }
 ```
 
-### Autosave (driven)
+### For autosaving (driven)
 
 Keeps the work in progress and its file handle between visits
 
-`Ports/Autosave.cs`:
+`Ports/ForAutosaving.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface Autosave
+public interface ForAutosaving
 {
 }
 ```
 
-### Diagram Exports (driven)
+### For exporting diagrams (driven)
 
 Writes the context diagram and the sketch as pictures
 
-`Ports/DiagramExports.cs`:
+`Ports/ForExportingDiagrams.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface DiagramExports
+public interface ForExportingDiagrams
 {
 }
 ```
 
-### Solution Stubs (driven)
+### For exporting the plan (driven)
 
 Hands the solution stub on to be built; v2 may add a GitHub adapter that inflates it in a repo
 
-`Ports/SolutionStubs.cs`:
+`Ports/ForExportingThePlan.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface SolutionStubs
+public interface ForExportingThePlan
 {
 }
 ```
 
-### Clipboard (driven)
+### For copying (driven)
 
 Takes the snapshot link when the Architect copies it
 
-`Ports/Clipboard.cs`:
+`Ports/ForCopying.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface Clipboard
+public interface ForCopying
 {
 }
 ```
 
-### Repos (driven)
+### For opening repos (driven)
 
 Reads a public GitHub repo's sketch from its default branch
 
-`Ports/Repos.cs`:
+`Ports/ForOpeningRepos.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface Repos
+public interface ForOpeningRepos
 {
 }
 ```
 
-### Glossaries (driven)
+### For exporting the glossary (driven)
 
 Opens the project's glossary and writes it back with the sketch's new terms
 
-`Ports/Glossaries.cs`:
+`Ports/ForExportingTheGlossary.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface Glossaries
+public interface ForExportingTheGlossary
 {
 }
 ```
@@ -232,27 +232,27 @@ Kinds: **Real** is the production adapter; **Fake** is a simple in-process stand
 |---|---|---|---|---|---|---|
 | User | Web App | Real | Blazor WebAssembly UI | `Motif.Sketch.App` | - | Context diagram: Architect, Viewer |
 | User | Specs | Checks | xUnit | `Motif.Sketch.Specs` | - | Added in the sketch |
-| Projects | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.Projects` | `ProjectsViaBrowserFiles` | Context diagram: Project Files |
-| Projects | Fake Projects | Fake | - | `Motif.Sketch.Fakes` (`Projects/`) | `FakeProjects` | Added in the sketch |
-| Autosave | IndexedDB | Real | Browser storage | `Motif.Sketch.Autosave` | `AutosaveViaIndexedDB` | Context diagram: Browser Storage |
-| Autosave | Fake Autosave | Fake | - | `Motif.Sketch.Fakes` (`Autosave/`) | `FakeAutosave` | Added in the sketch |
-| Diagram Exports | SVG Files | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.DiagramExports` | `DiagramExportsViaSvgFiles` | Context diagram: Diagram Exports |
-| Diagram Exports | Fake Diagram Exports | Fake | - | `Motif.Sketch.Fakes` (`DiagramExports/`) | `FakeDiagramExports` | Added in the sketch |
-| Solution Stubs | Markdown Plan | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.SolutionStubs` | `SolutionStubsViaMarkdownPlan` | Context diagram: Solution Plans |
-| Solution Stubs | Fake Solution Stubs | Fake | - | `Motif.Sketch.Fakes` (`SolutionStubs/`) | `FakeSolutionStubs` | Added in the sketch |
-| Clipboard | Browser | Real | Browser Clipboard API (JS interop) | `Motif.Sketch.Clipboard` | `ClipboardViaBrowser` | Context diagram: Clipboard |
-| Clipboard | Fake Clipboard | Fake | - | `Motif.Sketch.Fakes` (`Clipboard/`) | `FakeClipboard` | Added in the sketch |
-| Repos | GitHub | Real | raw.githubusercontent.com (HttpClient) | `Motif.Sketch.Repos` | `ReposViaGitHub` | Context diagram: GitHub |
-| Repos | Fake Repos | Fake | - | `Motif.Sketch.Fakes` (`Repos/`) | `FakeRepos` | Added in the sketch |
-| Glossaries | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.Glossaries` | `GlossariesViaBrowserFiles` | Context diagram: Glossary Files |
-| Glossaries | Fake Glossaries | Fake | - | `Motif.Sketch.Fakes` (`Glossaries/`) | `FakeGlossaries` | Added in the sketch |
+| For storing projects | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.ForStoringProjects` | `ForStoringProjectsViaBrowserFiles` | Context diagram: Project Files |
+| For storing projects | Fake for storing projects | Fake | - | `Motif.Sketch.Fakes` (`ForStoringProjects/`) | `FakeForStoringProjects` | Added in the sketch |
+| For autosaving | IndexedDB | Real | Browser storage | `Motif.Sketch.ForAutosaving` | `ForAutosavingViaIndexedDB` | Context diagram: Browser Storage |
+| For autosaving | Fake for autosaving | Fake | - | `Motif.Sketch.Fakes` (`ForAutosaving/`) | `FakeForAutosaving` | Added in the sketch |
+| For exporting diagrams | SVG Files | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.ForExportingDiagrams` | `ForExportingDiagramsViaSvgFiles` | Context diagram: Diagram Exports |
+| For exporting diagrams | Fake for exporting diagrams | Fake | - | `Motif.Sketch.Fakes` (`ForExportingDiagrams/`) | `FakeForExportingDiagrams` | Added in the sketch |
+| For exporting the plan | Markdown File | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.ForExportingThePlan` | `ForExportingThePlanViaMarkdownFile` | Context diagram: Solution Plans |
+| For exporting the plan | Fake for exporting the plan | Fake | - | `Motif.Sketch.Fakes` (`ForExportingThePlan/`) | `FakeForExportingThePlan` | Added in the sketch |
+| For copying | Browser Clipboard | Real | Browser Clipboard API (JS interop) | `Motif.Sketch.ForCopying` | `ForCopyingViaBrowserClipboard` | Context diagram: Clipboard |
+| For copying | Fake for copying | Fake | - | `Motif.Sketch.Fakes` (`ForCopying/`) | `FakeForCopying` | Added in the sketch |
+| For opening repos | GitHub | Real | raw.githubusercontent.com (HttpClient) | `Motif.Sketch.ForOpeningRepos` | `ForOpeningReposViaGitHub` | Context diagram: GitHub |
+| For opening repos | Fake for opening repos | Fake | - | `Motif.Sketch.Fakes` (`ForOpeningRepos/`) | `FakeForOpeningRepos` | Added in the sketch |
+| For exporting the glossary | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.ForExportingTheGlossary` | `ForExportingTheGlossaryViaBrowserFiles` | Context diagram: Glossary Files |
+| For exporting the glossary | Fake for exporting the glossary | Fake | - | `Motif.Sketch.Fakes` (`ForExportingTheGlossary/`) | `FakeForExportingTheGlossary` | Added in the sketch |
 
 For each driven adapter, add the stub class named above implementing its port's interface, in its project's namespace and in the folder shown. For example:
 
 ```csharp
 namespace Motif.Sketch.Adapters;
 
-public sealed class ProjectsViaBrowserFiles : Projects
+public sealed class ForStoringProjectsViaBrowserFiles : ForStoringProjects
 {
 }
 ```
@@ -263,20 +263,20 @@ Adapter notes:
 
 - **Web App** (`Motif.Sketch.App`): One app for the Architect (full editing) and the Viewer (read-only, opened from a snapshot link or a repo link)
 - **Specs** (`Motif.Sketch.Specs`): Checks that drive the application through the User port, using the fake driven adapters
-- **Browser Files** (`Motif.Sketch.Projects`): Saved projects: one file per system holding the context diagram and, once started, its ports-and-adapters sketch
-- **IndexedDB** (`Motif.Sketch.Autosave`): Autosaved work in progress and its file handle, so a refresh or closed tab loses nothing and Save still goes to the same file
-- **SVG Files** (`Motif.Sketch.DiagramExports`): The context diagram and the ports-and-adapters sketch as pictures
-- **Markdown Plan** (`Motif.Sketch.SolutionStubs`): The solution stub plan a coding agent builds from
-- **Browser** (`Motif.Sketch.Clipboard`): Where Copy link puts a snapshot link, ready to paste
-- **GitHub** (`Motif.Sketch.Repos`): Public repos, whose motif/ folder holds a project's sketch
-- **Browser Files** (`Motif.Sketch.Glossaries`): The project's glossary, motif/glossary.md, which Export glossary adds the sketch's terms to
+- **Browser Files** (`Motif.Sketch.ForStoringProjects`): Saved projects: one file per system holding the context diagram and, once started, its ports-and-adapters sketch
+- **IndexedDB** (`Motif.Sketch.ForAutosaving`): Autosaved work in progress and its file handle, so a refresh or closed tab loses nothing and Save still goes to the same file
+- **SVG Files** (`Motif.Sketch.ForExportingDiagrams`): The context diagram and the ports-and-adapters sketch as pictures
+- **Markdown File** (`Motif.Sketch.ForExportingThePlan`): The solution stub plan a coding agent builds from
+- **Browser Clipboard** (`Motif.Sketch.ForCopying`): Where Copy link puts a snapshot link, ready to paste
+- **GitHub** (`Motif.Sketch.ForOpeningRepos`): Public repos, whose motif/ folder holds a project's sketch
+- **Browser Files** (`Motif.Sketch.ForExportingTheGlossary`): The project's glossary, motif/glossary.md, which Export glossary adds the sketch's terms to
 
 ## 7. Fakes and specs
 
-- `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake driven adapter, with a folder per port (`Projects/`, `Autosave/`, `DiagramExports/`, `SolutionStubs/`, `Clipboard/`, `Repos/`, `Glossaries/`). The namespace is flat: `Motif.Sketch.Fakes`.
+- `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake driven adapter, with a folder per port (`ForStoringProjects/`, `ForAutosaving/`, `ForExportingDiagrams/`, `ForExportingThePlan/`, `ForCopying/`, `ForOpeningRepos/`, `ForExportingTheGlossary/`). The namespace is flat: `Motif.Sketch.Fakes`.
 - `Motif.Sketch.Specs` (`Checks/Motif.Sketch.Specs/`): xUnit. Packages: `Microsoft.NET.Test.Sdk`, `xunit`, `xunit.runner.visualstudio`, `coverlet.collector`, `AwesomeAssertions`. Keep the template's packages and add `AwesomeAssertions`.
   Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire the fake adapters up by hand; there is no composition root yet.
-- The browser adapters (`Motif.Sketch.Projects`, `Motif.Sketch.Autosave`, `Motif.Sketch.DiagramExports`, `Motif.Sketch.SolutionStubs`, `Motif.Sketch.Clipboard`, `Motif.Sketch.Repos`, `Motif.Sketch.Glossaries`) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.
+- The browser adapters (`Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingDiagrams`, `Motif.Sketch.ForExportingThePlan`, `Motif.Sketch.ForCopying`, `Motif.Sketch.ForOpeningRepos`, `Motif.Sketch.ForExportingTheGlossary`) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.
 - Use the latest stable package versions. Use AwesomeAssertions (`.Should()` style) in specs.
 
 ## 8. Not placed

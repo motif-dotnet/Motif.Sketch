@@ -9,21 +9,21 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<Motif.Sketch.App.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<BrowserFilesProjects>();
-builder.Services.AddSingleton<IndexedDBAutosave>();
-builder.Services.AddSingleton<SvgFilesDiagramExports>();
-builder.Services.AddSingleton<MarkdownPlanSolutionStubs>();
-builder.Services.AddSingleton<BrowserClipboard>();
-builder.Services.AddSingleton(_ => new GitHubRepos(new HttpClient()));
-builder.Services.AddSingleton<BrowserFilesGlossaries>();
+builder.Services.AddSingleton<ForStoringProjectsViaBrowserFiles>();
+builder.Services.AddSingleton<ForAutosavingViaIndexedDB>();
+builder.Services.AddSingleton<ForExportingDiagramsViaSvgFiles>();
+builder.Services.AddSingleton<ForExportingThePlanViaMarkdownFile>();
+builder.Services.AddSingleton<ForCopyingViaBrowserClipboard>();
+builder.Services.AddSingleton(_ => new ForOpeningReposViaGitHub(new HttpClient()));
+builder.Services.AddSingleton<ForExportingTheGlossaryViaBrowserFiles>();
 builder.Services.AddSingleton(sp => new MotifSketchApplication(
-    sp.GetRequiredService<BrowserFilesProjects>(),
-    sp.GetRequiredService<IndexedDBAutosave>(),
-    sp.GetRequiredService<SvgFilesDiagramExports>(),
-    sp.GetRequiredService<MarkdownPlanSolutionStubs>(),
-    sp.GetRequiredService<BrowserClipboard>(),
-    sp.GetRequiredService<GitHubRepos>(),
-    sp.GetRequiredService<BrowserFilesGlossaries>()));
+    sp.GetRequiredService<ForStoringProjectsViaBrowserFiles>(),
+    sp.GetRequiredService<ForAutosavingViaIndexedDB>(),
+    sp.GetRequiredService<ForExportingDiagramsViaSvgFiles>(),
+    sp.GetRequiredService<ForExportingThePlanViaMarkdownFile>(),
+    sp.GetRequiredService<ForCopyingViaBrowserClipboard>(),
+    sp.GetRequiredService<ForOpeningReposViaGitHub>(),
+    sp.GetRequiredService<ForExportingTheGlossaryViaBrowserFiles>()));
 builder.Services.AddSingleton<Browser>();
 builder.Services.AddSingleton<Ui>();
 

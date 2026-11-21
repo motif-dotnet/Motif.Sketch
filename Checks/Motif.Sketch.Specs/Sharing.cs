@@ -48,7 +48,7 @@ public sealed class Sharing
         viewer.Autosave.Stores.Should().Be(0);
         viewer.Autosave.Work.Should().Be(mine);
         viewer.DiagramExports.Written.Should().HaveCount(2);
-        viewer.SolutionStubs.Written.Should().ContainSingle();
+        viewer.PlanExports.Written.Should().ContainSingle();
     }
 
     [Fact]

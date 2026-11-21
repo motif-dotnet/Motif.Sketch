@@ -5,19 +5,19 @@ namespace Motif.Sketch.Specs;
 /// <summary>The application wired to every fake driven adapter, driven only through the User port.</summary>
 public sealed class Harness
 {
-    public FakeProjects Projects { get; } = new();
-    public FakeAutosave Autosave { get; } = new();
-    public FakeDiagramExports DiagramExports { get; } = new();
-    public FakeSolutionStubs SolutionStubs { get; } = new();
-    public FakeClipboard Clipboard { get; } = new();
-    public FakeRepos Repos { get; } = new();
-    public FakeGlossaries Glossaries { get; } = new();
+    public FakeForStoringProjects Projects { get; } = new();
+    public FakeForAutosaving Autosave { get; } = new();
+    public FakeForExportingDiagrams DiagramExports { get; } = new();
+    public FakeForExportingThePlan PlanExports { get; } = new();
+    public FakeForCopying Clipboard { get; } = new();
+    public FakeForOpeningRepos Repos { get; } = new();
+    public FakeForExportingTheGlossary Glossaries { get; } = new();
 
     public MotifSketchApplication App { get; }
     public UserTasks Tasks => App;
     public UserQueries Queries => App;
 
-    public Harness() => App = new MotifSketchApplication(Projects, Autosave, DiagramExports, SolutionStubs, Clipboard, Repos, Glossaries);
+    public Harness() => App = new MotifSketchApplication(Projects, Autosave, DiagramExports, PlanExports, Clipboard, Repos, Glossaries);
 
     /// <summary>A started app with a blank project.</summary>
     public static async Task<Harness> Started(string? fragment = null)

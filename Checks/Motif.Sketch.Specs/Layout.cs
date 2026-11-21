@@ -113,8 +113,8 @@ public sealed class Layout
     {
         var a = await Harness.WithExample();
         var b = await Harness.WithExample();
-        for (var i = 0; i < 4; i++) a.Tasks.AddAdapter(a.Port("Projects").Id, AdapterKind.Simulated);
-        for (var i = 0; i < 4; i++) b.Tasks.AddAdapter(b.Port("Projects").Id, AdapterKind.Simulated);
+        for (var i = 0; i < 4; i++) a.Tasks.AddAdapter(a.Port("For storing projects").Id, AdapterKind.Simulated);
+        for (var i = 0; i < 4; i++) b.Tasks.AddAdapter(b.Port("For storing projects").Id, AdapterKind.Simulated);
 
         var boxes = a.Adapters.Select(x => x.Box).ToList();
         for (var i = 0; i < boxes.Count; i++)

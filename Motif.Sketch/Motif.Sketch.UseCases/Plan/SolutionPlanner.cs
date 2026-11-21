@@ -219,7 +219,7 @@ public static partial class SolutionPlanner
         if (!covered)
         {
             result.Add(new PlannedAdapter(
-                driving ? Project.SpecsName : $"Fake {port.Name}",
+                driving ? Project.SpecsName : $"Fake {Project.Purpose(port.Name)}",
                 driving ? AdapterKind.Checks : AdapterKind.Fake,
                 driving ? Project.SpecsTechnology : null,
                 driving
