@@ -208,4 +208,63 @@ public sealed class SketchingPortsAndAdapters
         h.Port("User").Description.Should().Be("People");
         h.Element("Customer").Name.Should().Be("Customer");
     }
+
+    /// <summary>The shop with its sketch started and the database on a driven port.</summary>
+    private static async Task<(Harness H, string Database)> ShopWithDatabase()
+    {
+        var h = await Shop();
+        h.Tasks.StartSketch();
+        return (h, h.Tasks.PlaceOnNewPort(h.Element("Orders DB").Id, Side.Driven));
+    }
+
+    [Fact]
+    public async Task A_driven_adapter_can_name_its_Seam_and_a_blank_one_clears_it()
+    {
+        var (h, database) = await ShopWithDatabase();
+
+        h.Tasks.SetAdapterSeam(database, " Order Store ");
+        h.Queries.Sketch!.Adapter(database)!.Seam.Should().Be("Order Store");
+
+        h.Tasks.SetAdapterSeam(database, "  ");
+        h.Queries.Sketch!.Adapter(database)!.Seam.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Only_real_and_simulated_driven_adapters_have_a_Seam()
+    {
+        var (h, database) = await ShopWithDatabase();
+        var fake = h.Tasks.AddAdapter(h.Queries.Sketch!.Adapter(database)!.PortId, AdapterKind.Fake);
+
+        h.Invoking(x => x.Tasks.SetAdapterSeam(x.Adapter("Customer").Id, "Browser"))
+            .Should().Throw<ProjectRuleException>().WithMessage("*driven*");
+        h.Invoking(x => x.Tasks.SetAdapterSeam(fake, "Orders"))
+            .Should().Throw<ProjectRuleException>().WithMessage("*fake*");
+    }
+
+    [Fact]
+    public async Task Making_an_adapter_a_fake_or_moving_it_to_a_driving_port_drops_its_Seam()
+    {
+        var (h, database) = await ShopWithDatabase();
+        var payments = h.Tasks.PlaceOnNewPort(h.Element("Payments").Id, Side.Driven);
+        h.Tasks.SetAdapterSeam(database, "Order Store");
+        h.Tasks.SetAdapterSeam(payments, "Card Gateway");
+
+        h.Tasks.SetAdapterKind(database, AdapterKind.Fake);
+        h.Tasks.MoveAdapter(payments, h.Port("User").Id);
+
+        h.Queries.Sketch!.Adapter(database)!.Seam.Should().BeNull();
+        h.Queries.Sketch!.Adapter(payments)!.Seam.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task A_fake_on_a_port_named_for_its_purpose_reads_as_a_phrase()
+    {
+        var (h, database) = await ShopWithDatabase();
+        var port = h.Queries.Sketch!.Adapter(database)!.PortId;
+        h.Tasks.RenamePort(port, "For storing orders");
+
+        h.Tasks.AddAdapter(port, AdapterKind.Fake);
+
+        h.Queries.Sketch!.Port(port)!.Adapters.Select(a => a.Name).Should().Equal("Orders DB", "Fake for storing orders");
+    }
 }

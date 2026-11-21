@@ -469,6 +469,7 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
     public void SetAdapterTechnology(string adapterId, string? technology) => Edit(p => p.SetAdapterTechnology(adapterId, technology));
     public void DescribeAdapter(string adapterId, string? description) => Edit(p => p.DescribeAdapter(adapterId, description));
     public void SetAdapterKind(string adapterId, AdapterKind kind) => Edit(p => p.SetAdapterKind(adapterId, kind));
+    public void SetAdapterSeam(string adapterId, string? seam) => Edit(p => p.SetAdapterSeam(adapterId, seam));
 
     public void Undo()
     {

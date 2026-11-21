@@ -69,6 +69,7 @@ public static class ProjectJson
                         Technology = Blank(a.Technology),
                         Description = Blank(a.Description),
                         Kind = ContextScene.Camel(a.Kind),
+                        Seam = Blank(a.Seam),
                         Sources = [.. a.Sources],
                         SourceDeleted = a.SourceDeleted ? true : null,
                     }).ToList(),
@@ -164,6 +165,7 @@ public static class ProjectJson
                         Technology = Blank(a.Technology),
                         Description = Blank(a.Description),
                         Kind = kind,
+                        Seam = Blank(a.Seam),
                         Sources = [.. a.Sources ?? []],
                         SourceDeleted = a.SourceDeleted == true,
                     });
@@ -246,6 +248,7 @@ internal sealed class AdapterFile
     public string? Technology { get; set; }
     public string? Description { get; set; }
     public string? Kind { get; set; }
+    public string? Seam { get; set; }
     public List<string>? Sources { get; set; }
     public bool? SourceDeleted { get; set; }
 }

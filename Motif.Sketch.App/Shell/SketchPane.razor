@@ -244,6 +244,12 @@
                     </select></div>
                 <div class="field"><label for="sk-tech">Technology</label>
                     <input id="sk-tech" value="@a.Technology" readonly="@ReadOnly" @onchange="v => Ui.Run(() => App.SetAdapterTechnology(a.Id, Text(v)))" /></div>
+                @if (a.CanHaveSeam)
+                {
+                    <div class="field"><label for="sk-seam">Seam</label>
+                        <input id="sk-seam" value="@a.Seam" readonly="@ReadOnly" placeholder="None: it's its own Fitting" @onchange="v => Ui.Run(() => App.SetAdapterSeam(a.Id, Text(v)))" />
+                        @if (!ReadOnly) { <p class="help">Name what a deep adapter reaches, such as Folder. The plan gives it a real and a fake Fitting, in place of a fake of the port.</p> }</div>
+                }
                 @if (portOf.Side == Side.Driven)
                 {
                     <div class="field"><label>Class</label><div class="code">@CodeOr(SolutionPlanner.ClassFor(CodeName.From(portOf.Name), CodeName.From(a.Name), a.Technology, a.Kind))</div></div>

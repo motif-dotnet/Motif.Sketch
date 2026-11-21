@@ -116,6 +116,7 @@ public interface UserTasks
     void SetAdapterTechnology(string adapterId, string? technology);
     void DescribeAdapter(string adapterId, string? description);
     void SetAdapterKind(string adapterId, AdapterKind kind);
+    void SetAdapterSeam(string adapterId, string? seam);
 
     void Undo();
     void Redo();

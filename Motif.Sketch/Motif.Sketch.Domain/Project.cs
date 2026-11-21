@@ -229,7 +229,8 @@ public sealed class Project
 
     /// <summary>
     /// Adds a hand-made adapter. Fakes are named "Fake ⟨Port⟩", simulators "Simulated ⟨Port⟩" and
-    /// checks "Specs" (xUnit). Checks belong on driving ports only.
+    /// checks "Specs" (xUnit). A port named for its purpose, "For storing orders", gives "Fake for
+    /// storing orders", which reads as a phrase. Checks belong on driving ports only.
     /// </summary>
     public Adapter AddAdapter(string portId, AdapterKind kind = AdapterKind.Real)
     {
@@ -240,7 +241,7 @@ public sealed class Project
         {
             AdapterKind.Checks => SpecsAdapter(),
             AdapterKind.Real => new Adapter { Id = NewId(), Name = NextName("Adapter", RequireSketch().Adapters.Select(a => a.Name)) },
-            _ => new Adapter { Id = NewId(), Name = UniqueName($"{kind} {port.Name}", taken), Kind = kind },
+            _ => new Adapter { Id = NewId(), Name = UniqueName($"{kind} {Purpose(port.Name)}", taken), Kind = kind },
         };
         if (kind == AdapterKind.Checks) adapter.Name = UniqueName(SpecsName, taken);
         port.Adapters.Add(adapter);
@@ -258,6 +259,7 @@ public sealed class Project
         from.Adapters.Remove(adapter);
         if (from == target && index > oldIndex) index--;
         Insert(target, adapter, index);
+        if (!CanHaveSeam(target, adapter.Kind)) adapter.Seam = null;
     }
 
     /// <summary>Removes an adapter; the elements it stood for return to the unplaced list.</summary>
@@ -272,9 +274,32 @@ public sealed class Project
 
     public void SetAdapterKind(string adapterId, AdapterKind kind)
     {
-        CheckKind(PortOf(adapterId), kind);
-        Touch(adapterId).Kind = kind;
+        var port = PortOf(adapterId);
+        CheckKind(port, kind);
+        var adapter = Touch(adapterId);
+        adapter.Kind = kind;
+        if (!CanHaveSeam(port, kind)) adapter.Seam = null;
     }
+
+    /// <summary>
+    /// Names the Seam a deep adapter reaches the outside world through; blank makes it its own Fitting.
+    /// Only a driven real or simulated adapter has one: a fake is a Fitting itself, and on the driving
+    /// side the view plays the Fitting's part.
+    /// </summary>
+    public void SetAdapterSeam(string adapterId, string? seam)
+    {
+        var port = PortOf(adapterId);
+        var adapter = FindAdapter(adapterId);
+        if (Tidy(seam) is not null && !CanHaveSeam(port, adapter.Kind))
+            throw new ProjectRuleException(port.Side == Side.Driving
+                ? "Only a driven adapter has a Seam: on the driving side, the view plays the Fitting's part."
+                : $"A {adapter.Kind.ToString().ToLowerInvariant()} adapter has no Seam: a fake is a Fitting itself.");
+        Touch(adapterId).Seam = Tidy(seam);
+    }
+
+    /// <summary>Whether an adapter of this kind on this port can reach the outside world through a Seam.</summary>
+    public static bool CanHaveSeam(Port port, AdapterKind kind) =>
+        port.Side == Side.Driven && kind is AdapterKind.Real or AdapterKind.Simulated;
 
     public Port FindPort(string portId) =>
         RequireSketch().Ports.Find(p => p.Id == portId) ?? throw new ProjectRuleException($"There is no port '{portId}'.");
@@ -297,6 +322,10 @@ public sealed class Project
         ElementType.Storage => "Storage",
         _ => "System",
     };
+
+    /// <summary>A port named "For …" is a purpose, so it follows another word in lower case.</summary>
+    private static string Purpose(string portName) =>
+        portName.StartsWith("For ", StringComparison.Ordinal) ? "for" + portName[3..] : portName;
 
     private Sketch RequireSketch() =>
         Sketch ?? throw new ProjectRuleException("Start the sketch first.");

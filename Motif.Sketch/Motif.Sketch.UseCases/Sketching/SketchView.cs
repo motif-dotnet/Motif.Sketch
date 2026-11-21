@@ -14,6 +14,7 @@ public sealed record HexagonShape(
 /// <summary>A context diagram element an adapter stands for.</summary>
 public sealed record SourceView(string ElementId, string Name, ElementType Type);
 
+/// <param name="CanHaveSeam">Whether it can name a Seam: only a driven real or simulated adapter can.</param>
 public sealed record AdapterShape(
     string Id,
     string PortId,
@@ -21,6 +22,8 @@ public sealed record AdapterShape(
     string? Technology,
     string? Description,
     AdapterKind Kind,
+    string? Seam,
+    bool CanHaveSeam,
     IReadOnlyList<SourceView> Sources,
     bool SourceDeleted,
     string? Caption,
@@ -187,7 +190,7 @@ public static class SketchLayout
                 .Select(diagram.Find).OfType<Element>()
                 .Select(e => new SourceView(e.Id, e.Name, e.Type)).ToList();
             adapters.Add(new AdapterShape(adapter.Id, port.Id, adapter.Name, adapter.Technology, adapter.Description,
-                adapter.Kind, sources, adapter.SourceDeleted, caption, box,
+                adapter.Kind, adapter.Seam, Project.CanHaveSeam(port, adapter.Kind), sources, adapter.SourceDeleted, caption, box,
                 new Line(TowardsEdge(centre, target, radius), target)));
         }
 

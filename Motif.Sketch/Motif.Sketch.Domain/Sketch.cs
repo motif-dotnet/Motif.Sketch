@@ -18,6 +18,12 @@ public sealed class Adapter
     public string? Description { get; set; }
     public AdapterKind Kind { get; set; }
 
+    /// <summary>
+    /// What a deep adapter reaches through, in the app's terms, such as "Folder": the Seam between the
+    /// adapter and its Fitting. Empty for an adapter that is its own Fitting, and on driving ports and fakes.
+    /// </summary>
+    public string? Seam { get; set; }
+
     /// <summary>The context diagram elements this adapter stands for. Empty for a hand-made one.</summary>
     public List<string> Sources { get; init; } = [];
 
@@ -26,7 +32,7 @@ public sealed class Adapter
 
     public Adapter Clone() => new()
     {
-        Id = Id, Name = Name, Technology = Technology, Description = Description, Kind = Kind,
+        Id = Id, Name = Name, Technology = Technology, Description = Description, Kind = Kind, Seam = Seam,
         Sources = [.. Sources], SourceDeleted = SourceDeleted,
     };
 }

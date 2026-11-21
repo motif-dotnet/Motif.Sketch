@@ -46,6 +46,38 @@ public sealed class Files
     }
 
     [Fact]
+    public async Task A_Seam_is_saved_on_its_adapter_and_left_out_when_there_is_none()
+    {
+        var h = await Harness.WithExample();
+        await h.Tasks.SaveAs();
+        h.Projects.Writes[^1].Json.Should().NotContain("\"seam\"");
+
+        h.Tasks.SetAdapterSeam(h.Adapter("IndexedDB").Id, "Browser Storage");
+        await h.Tasks.SaveAs();
+        var saved = h.Projects.Writes[^1].Json;
+        saved.Should().Contain("\"seam\": \"Browser Storage\"");
+
+        h.Projects.NextOpen = h.Projects.FileOf("again.motifsketch.json", saved);
+        (await h.Tasks.Open()).Succeeded.Should().BeTrue();
+        h.Adapter("IndexedDB").Seam.Should().Be("Browser Storage");
+    }
+
+    [Fact]
+    public async Task A_file_with_a_Seam_on_a_fake_doesnt_open()
+    {
+        var h = await Harness.Started();
+        var json = Example.Json().Replace(
+            "\"name\": \"Fake Clipboard\",", "\"name\": \"Fake Clipboard\",\n            \"seam\": \"Clipboard\",");
+        json.Should().Contain("\"seam\"");
+        h.Projects.NextOpen = h.Projects.FileOf("bad.motifsketch.json", json);
+
+        var outcome = await h.Tasks.Open();
+
+        outcome.Succeeded.Should().BeFalse();
+        outcome.Problems.Should().Contain(p => p.Contains("Fake Clipboard") && p.Contains("Seam"));
+    }
+
+    [Fact]
     public async Task In_save_in_place_browsers_Save_writes_back_to_the_same_file()
     {
         var h = await Harness.Started();

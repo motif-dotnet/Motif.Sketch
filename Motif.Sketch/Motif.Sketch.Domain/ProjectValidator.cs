@@ -60,6 +60,10 @@ public static class ProjectValidator
             foreach (var adapter in port.Adapters.Where(a => a.Kind == AdapterKind.Checks))
                 problems.Add($"'{adapter.Name}' on '{port.Name}' is a checks adapter, but checks belong on driving ports only.");
 
+        foreach (var port in sketch.Ports)
+            foreach (var adapter in port.Adapters.Where(a => a.Seam is not null && !Project.CanHaveSeam(port, a.Kind)))
+                problems.Add($"'{adapter.Name}' on '{port.Name}' has a Seam, but only a driven real or simulated adapter can have one.");
+
         var sources = sketch.Adapters.SelectMany(a => a.Sources).ToList();
         foreach (var source in sources.Distinct())
         {
