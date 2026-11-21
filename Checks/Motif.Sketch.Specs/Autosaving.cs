@@ -115,6 +115,21 @@ public sealed class Autosaving
     }
 
     [Fact]
+    public async Task A_tab_that_took_over_hands_autosave_back_when_asked()
+    {
+        var h = new Harness();
+        h.BrowserStorage.HeldElsewhere = true;
+        await h.Tasks.Start(null);
+        await h.Tasks.UseThisTab();
+        h.BrowserStorage.HeldElsewhere.Should().BeFalse("this tab took the lock");
+
+        await h.BrowserStorage.AnotherTabAsksForTheLock();
+
+        h.Queries.Mode.Should().Be(AppMode.OtherTab);
+        h.BrowserStorage.HeldElsewhere.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task Autosave_isnt_a_save_unsaved_still_means_not_saved_to_a_file()
     {
         var h = await Harness.Started();
