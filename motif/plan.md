@@ -75,7 +75,7 @@ Rules:
 
 ## 4. Namespaces
 
-- `Motif.Sketch.Domain` and `Motif.Sketch.UseCases` both use the plain `Motif.Sketch` namespace, so the port interfaces are `Motif.Sketch.UserTasks` and so on.
+- `Motif.Sketch.Domain` and `Motif.Sketch.UseCases` both use the plain `Motif.Sketch` namespace, so the port interfaces are `Motif.Sketch.ForDoing` and so on.
 - Every other project uses the namespace in section 2. Real and simulated adapters share one namespace, and so do the fakes.
 - Folders inside a project don't change its namespace.
 - Set `RootNamespace` in each `.csproj` to its namespace, so new files created in an IDE get it.
@@ -87,8 +87,8 @@ All port interfaces live in `Motif.Sketch.UseCases`, namespace `Motif.Sketch`, o
 
 ```
 Motif.Sketch.UseCases/
-  UserTasks.cs
-  UserQueries.cs
+  ForDoing.cs
+  ForSeeing.cs
   MotifSketchApplication.cs
   Ports/
     ForStoringProjects.cs
@@ -102,24 +102,24 @@ Motif.Sketch.UseCases/
 
 ### User (driving)
 
-The User port: how people (and anything acting for them) use the application. It has two halves, commands and queries.
+The User port: how people (and anything acting for them) use the application. It has two halves: `ForDoing`, the commands, and `ForSeeing`, the queries.
 
-`UserTasks.cs`:
+`ForDoing.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface UserTasks
+public interface ForDoing
 {
 }
 ```
 
-`UserQueries.cs`:
+`ForSeeing.cs`:
 
 ```csharp
 namespace Motif.Sketch;
 
-public interface UserQueries
+public interface ForSeeing
 {
 }
 ```
@@ -222,7 +222,7 @@ public interface ForExportingTheGlossary
 }
 ```
 
-Also add one stub class, `MotifSketchApplication` in `Motif.Sketch.UseCases` (namespace `Motif.Sketch`), implementing the driving interfaces (`UserTasks`, `UserQueries`). It is the application itself; its constructor will later take the driven ports.
+Also add one stub class, `MotifSketchApplication` in `Motif.Sketch.UseCases` (namespace `Motif.Sketch`), implementing the driving interfaces (`ForDoing`, `ForSeeing`). It is the application itself; its constructor will later take the driven ports.
 
 ## 6. Adapters
 

@@ -5,7 +5,7 @@ namespace Motif.Sketch;
 /// Undo works on whole-project snapshots: every edit clones the project, changes the clone and keeps
 /// the old one, so a change and the sketch's follow-up to it (SPEC §5.3) are one step, in both views.
 /// </remarks>
-public sealed class MotifSketchApplication : UserTasks, UserQueries
+public sealed class MotifSketchApplication : ForDoing, ForSeeing
 {
     public const int HistoryLimit = 200;
     private const string CantOpen = "That file can't be opened";
@@ -54,7 +54,9 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
     public bool IsEmpty => IsEmptyProject(project);
     public string? FileName { get; private set; }
     public bool HasUnsavedChanges => version != savedVersion;
-    public bool CanSaveInPlace => projects.CanSaveInPlace;
+    public string HowProjectsAreSaved => projects.CanSaveInPlace
+        ? ""
+        : "This browser can't save in place, so Save downloads a copy. Edge and Chrome save back to the same file.";
 
     public string HowTheGlossaryIsSaved => glossaries.CanSaveInPlace
         ? "The glossary is saved back to the same file."
@@ -129,7 +131,8 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         Raise();
         return new StartResult(
             !ownsAutosave ? StartedAs.OtherTab : restored ? StartedAs.Restored : StartedAs.Fresh,
-            linkProblem);
+            linkProblem is null ? Note.None : new Note("That link can't be opened", $"{linkProblem} Here is your own work instead."),
+            ownsAutosave ? Note.None : new Note("Motif Sketch is open in another tab", "This tab is read-only. Use this tab instead to edit here."));
     }
 
     private async Task<(Project? Project, string? Problem)> ReadRepo(RepoName repo)
@@ -182,11 +185,12 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         return Persist();
     }
 
-    public async Task OpenExample()
+    public async Task<Note> OpenExample()
     {
         RequireEditable();
         Begin(Example.Project(), null, null, saved: false);
         await Persist();
+        return new Note("This is Motif Sketch's own design", "It's ordinary unsaved work: change it, or save it as a file of your own.");
     }
 
     public async Task<Outcome> Open()
@@ -239,9 +243,9 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         return Outcome.Ok(projects.CanSaveInPlace ? $"Saved to {saved.Name}" : $"Downloaded {saved.Name}");
     }
 
-    public async Task MakeCopyToEdit()
+    public async Task<Note> MakeCopyToEdit()
     {
-        if (Mode != AppMode.Viewer) return;
+        if (Mode != AppMode.Viewer) return Note.None;
         ownsAutosave = await autosave.Claim();
         if (!ownsAutosave)
         {
@@ -255,16 +259,18 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         savedVersion = -1;
         Raise();
         await Persist();
+        return new Note("This is now your own work", "It autosaves in this browser. Save it to a file to keep it.");
     }
 
-    public async Task UseThisTab()
+    public async Task<Note> UseThisTab()
     {
-        if (Mode != AppMode.OtherTab) return;
+        if (Mode != AppMode.OtherTab) return Note.None;
         await autosave.TakeOver();
         ownsAutosave = true;
         Mode = AppMode.Architect;
         if (!await RestoreAutosave()) Begin(project, FileName, fileHandle, saved: !HasUnsavedChanges);
         Raise();
+        return new Note("Editing in this tab", "The other tab is read-only now.");
     }
 
     private void OnReleased()
@@ -481,7 +487,11 @@ public sealed class MotifSketchApplication : UserTasks, UserQueries
         ContextLayout.Apply(p.ContextDiagram);
     });
 
-    public void StartSketch() => Edit(p => p.StartSketch());
+    public Note StartSketch()
+    {
+        Edit(p => p.StartSketch());
+        return new Note("Sketch started", "Drag the items under Not placed onto ports, adapters or the hexagon.");
+    }
     public string AddPort(Side side) => Edit(p => p.AddPort(side).Id);
     public void RenamePort(string portId, string name) => Edit(p => p.RenamePort(portId, name));
     public void DescribePort(string portId, string? description) => Edit(p => p.DescribePort(portId, description));

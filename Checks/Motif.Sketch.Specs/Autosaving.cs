@@ -104,6 +104,35 @@ public sealed class Autosaving
     }
 
     [Fact]
+    public async Task A_second_tab_says_its_read_only_and_how_to_edit_there()
+    {
+        var h = new Harness();
+        h.BrowserStorage.HeldElsewhere = true;
+
+        (await h.Tasks.Start(null)).Note.Should().Be(
+            new Note("Motif Sketch is open in another tab", "This tab is read-only. Use this tab instead to edit here."));
+    }
+
+    [Fact]
+    public async Task Use_this_tab_instead_says_the_other_tab_is_read_only_now()
+    {
+        var h = new Harness();
+        h.BrowserStorage.HeldElsewhere = true;
+        await h.Tasks.Start(null);
+
+        (await h.Tasks.UseThisTab()).Should().Be(new Note("Editing in this tab", "The other tab is read-only now."));
+    }
+
+    [Fact]
+    public async Task A_tab_that_owns_autosave_has_nothing_to_say_on_start_or_on_use_this_tab()
+    {
+        var h = new Harness();
+
+        (await h.Tasks.Start(null)).Should().Be(new StartResult(StartedAs.Fresh));
+        (await h.Tasks.UseThisTab()).Should().Be(Note.None);
+    }
+
+    [Fact]
     public async Task The_first_tab_goes_read_only_when_another_takes_over()
     {
         var h = await Harness.Started();

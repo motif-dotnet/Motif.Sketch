@@ -17,6 +17,15 @@ public sealed class TheExample
     }
 
     [Fact]
+    public async Task Open_example_says_its_Motif_Sketchs_own_design_and_ordinary_unsaved_work()
+    {
+        var h = await Harness.Started();
+
+        (await h.Tasks.OpenExample()).Should().Be(new Note(
+            "This is Motif Sketch's own design", "It's ordinary unsaved work: change it, or save it as a file of your own."));
+    }
+
+    [Fact]
     public void The_bundled_file_is_already_in_the_saved_format()
     {
         ProjectJson.Save(Example.Project()).Should().Be(Example.Json().ReplaceLineEndings("\n"));

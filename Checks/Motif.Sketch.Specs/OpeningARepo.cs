@@ -61,7 +61,7 @@ public sealed class OpeningARepo
         var (h, started) = await Start("#repo=someone/no-sketch", h => h.BrowserStorage.Work = RealWork);
 
         started.StartedAs.Should().Be(StartedAs.Restored);
-        started.Problem.Should().Contain("someone/no-sketch").And.Contain("motif/sketch.motifsketch.json");
+        started.Problem.Text.Should().Contain("someone/no-sketch").And.Contain("motif/sketch.motifsketch.json");
         h.Queries.Mode.Should().Be(AppMode.Architect);
         h.Queries.Repo.Should().BeNull();
     }
@@ -72,7 +72,7 @@ public sealed class OpeningARepo
         var (_, started) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.GitHub.Unreachable = true);
 
         started.StartedAs.Should().Be(StartedAs.Fresh);
-        started.Problem.Should().Contain("GitHub couldn't be reached");
+        started.Problem.Text.Should().Contain("GitHub couldn't be reached");
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public sealed class OpeningARepo
         var (_, started) = await Start("#repo=motif-dotnet/Motif.Sketch", h => h.GitHub.Down(HttpStatusCode.ServiceUnavailable));
 
         started.StartedAs.Should().Be(StartedAs.Fresh);
-        started.Problem.Should().Contain("GitHub couldn't be reached").And.Contain("503");
+        started.Problem.Text.Should().Contain("GitHub couldn't be reached").And.Contain("503");
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public sealed class OpeningARepo
         var (_, started) = await Start("#repo=someone/broken", h => h.GitHub.Commit("someone/broken", RepoLink.SketchPath, "{ not json"));
 
         started.StartedAs.Should().Be(StartedAs.Fresh);
-        started.Problem.Should().Contain("isn't a sketch Motif Sketch can open");
+        started.Problem.Text.Should().Contain("isn't a sketch Motif Sketch can open");
     }
 
     [Theory]

@@ -15,8 +15,8 @@ public sealed class Harness
     public FakeGlossaryFiles GlossaryFiles { get; } = new();
 
     public MotifSketchApplication App { get; }
-    public UserTasks Tasks => App;
-    public UserQueries Queries => App;
+    public ForDoing Tasks => App;
+    public ForSeeing Queries => App;
 
     public Harness() : this(new FakeProjectFiles())
     {

@@ -30,8 +30,21 @@ public enum StartedAs
     Repo,
 }
 
-/// <param name="Problem">Why a link couldn't be opened, if one was given and was bad.</param>
-public sealed record StartResult(StartedAs StartedAs, string? Problem = null);
+/// <summary>What to tell the user when a task finishes, or <see cref="None"/> when there's nothing to say.</summary>
+/// <param name="Text">A line more, or empty.</param>
+public sealed record Note(string Title, string Text)
+{
+    public static readonly Note None = new("", "");
+}
+
+/// <param name="Problem">Why a link couldn't be opened, if one was given and was bad, or <see cref="Note.None"/>.</param>
+/// <param name="Note">What else to tell the user about how the app came up, such as that another tab owns it, or <see cref="Note.None"/>.</param>
+public sealed record StartResult(StartedAs StartedAs, Note Problem, Note Note)
+{
+    public StartResult(StartedAs startedAs) : this(startedAs, Note.None, Note.None)
+    {
+    }
+}
 
 /// <summary>What Export glossary did.</summary>
 /// <param name="Added">The terms added, alphabetically. Empty on success means the glossary already had them all and wasn't written.</param>
@@ -55,12 +68,12 @@ public sealed record GlossaryOutcome(
 /// <param name="Text">A line more: why a long link may be cut, or why it couldn't be copied.</param>
 public sealed record LinkOutcome(bool Succeeded, string Link, bool IsLong, string Title, string Text);
 
-/// <summary>Driving port, command half: everything the user can do.</summary>
+/// <summary>The User port's command half: everything the user can do.</summary>
 /// <remarks>
 /// Every editing task is one undo step and throws <see cref="ProjectRuleException"/> (leaving the
-/// project untouched) if it would break a rule. Ids are those shown by <see cref="UserQueries"/>.
+/// project untouched) if it would break a rule. Ids are those shown by <see cref="ForSeeing"/>.
 /// </remarks>
-public interface UserTasks
+public interface ForDoing
 {
     /// <summary>
     /// Starts the app: the example for an <c>#example</c> link, a public repo's sketch for a
@@ -74,13 +87,13 @@ public interface UserTasks
     Task<Outcome> Open();
     Task<Outcome> Save();
     Task<Outcome> SaveAs();
-    Task OpenExample();
+    Task<Note> OpenExample();
 
     /// <summary>Turns a shared snapshot into the visitor's own work, replacing their autosave.</summary>
-    Task MakeCopyToEdit();
+    Task<Note> MakeCopyToEdit();
 
     /// <summary>Takes autosave over from the tab that owns it, and carries on with the latest work here.</summary>
-    Task UseThisTab();
+    Task<Note> UseThisTab();
 
     Task<Outcome> ExportContextDiagram();
     Task<Outcome> ExportSketch();
@@ -112,7 +125,7 @@ public interface UserTasks
     void AutoLayoutAll();
 
     // Sketch
-    void StartSketch();
+    Note StartSketch();
     string AddPort(Side side);
     void RenamePort(string portId, string name);
     void DescribePort(string portId, string? description);

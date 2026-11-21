@@ -79,9 +79,28 @@ public sealed class Sharing
 
         var started = await h.Tasks.Start(fragment);
 
-        started.Problem.Should().Contain(problem);
+        started.Problem.Text.Should().Contain(problem);
         started.StartedAs.Should().Be(StartedAs.Restored);
         h.Queries.Mode.Should().Be(AppMode.Architect);
+    }
+
+    [Fact]
+    public async Task A_bad_link_says_it_cant_be_opened_and_that_this_is_the_visitors_own_work()
+    {
+        var started = await new Harness().Tasks.Start("#v1.not-really-deflate");
+
+        started.Problem.Title.Should().Be("That link can't be opened");
+        started.Problem.Text.Should().EndWith(" Here is your own work instead.");
+    }
+
+    [Fact]
+    public async Task Making_a_copy_says_the_work_is_now_the_visitors_own()
+    {
+        var viewer = new Harness();
+        await viewer.Tasks.Start("#" + SnapshotLink.Fragment(Example.Project()));
+
+        (await viewer.Tasks.MakeCopyToEdit()).Should().Be(
+            new Note("This is now your own work", "It autosaves in this browser. Save it to a file to keep it."));
     }
 
     [Fact]

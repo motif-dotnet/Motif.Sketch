@@ -96,6 +96,24 @@ public sealed class Files
     }
 
     [Fact]
+    public async Task In_save_in_place_browsers_theres_nothing_to_say_about_how_Save_works()
+    {
+        var h = await Harness.Started();
+
+        h.Queries.HowProjectsAreSaved.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task In_other_browsers_the_user_is_told_Save_downloads_a_copy()
+    {
+        var h = await Harness.Started();
+        h.ProjectFiles.CanWriteInPlace = false;
+
+        h.Queries.HowProjectsAreSaved.Should().Be(
+            "This browser can't save in place, so Save downloads a copy. Edge and Chrome save back to the same file.");
+    }
+
+    [Fact]
     public async Task Save_as_picks_a_new_file_and_later_saves_go_there()
     {
         var h = await Harness.Started();

@@ -36,9 +36,9 @@
                     <button @onclick="Save">Save<span class="code">Ctrl+S</span></button>
                     <button @onclick="SaveAs">Save as…<span class="code">Ctrl+Shift+S</span></button>
                     <button @onclick="OpenExample">Open example</button>
-                    @if (!App.CanSaveInPlace)
+                    @if (App.HowProjectsAreSaved.Length > 0)
                     {
-                        <div class="note">This browser can't save in place, so Save downloads a copy. Edge and Chrome save back to the same file.</div>
+                        <div class="note">@App.HowProjectsAreSaved</div>
                     }
                 </div>
             </div>

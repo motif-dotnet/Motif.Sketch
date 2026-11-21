@@ -100,7 +100,7 @@ public static class PlanMarkdown
             Line($"### {port.Name} ({(port.Side == Side.Driving ? "driving" : "driven")})");
             Line();
             if (port.IsUser)
-                Line("The User port: how people (and anything acting for them) use the application. It has two halves, commands and queries.");
+                Line("The User port: how people (and anything acting for them) use the application. It has two halves: `ForDoing`, the commands, and `ForSeeing`, the queries.");
             if (!string.IsNullOrWhiteSpace(port.Description))
                 Line(port.Description);
             if (port.IsUser || !string.IsNullOrWhiteSpace(port.Description))

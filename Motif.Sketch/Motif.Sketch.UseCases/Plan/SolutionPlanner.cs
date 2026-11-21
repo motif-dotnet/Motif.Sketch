@@ -96,7 +96,7 @@ public static partial class SolutionPlanner
         foreach (var port in ports.Where(IsDeep))
             foreach (var fake in port.Adapters.Where(a => a.Kind == AdapterKind.Fake))
                 warnings.Add($"'{fake.Name}' fakes the whole '{port.Name}' port, but its adapters have Seams, so their fake Fittings stand in for them instead.");
-        // The User port is left out: whether it, too, should be named "For …" is still open.
+        // The User port keeps its name; its two halves, ForDoing and ForSeeing, are the "For …" names.
         var unnamed = ports.Where(p => !p.IsUser && !p.Name.StartsWith("For ", StringComparison.Ordinal))
             .Select(p => p.Name).ToList();
         if (unnamed.Count > 0)
@@ -111,9 +111,9 @@ public static partial class SolutionPlanner
             projects, plannedPorts, seams, unplaced, warnings, problems);
     }
 
-    /// <summary>The User port is two interfaces (tasks and queries); every other port is one.</summary>
+    /// <summary>The User port is two interfaces, ForDoing (its commands) and ForSeeing (its queries); every other port is one.</summary>
     public static IReadOnlyList<string> InterfacesFor(Port port) =>
-        port.IsUser ? ["UserTasks", "UserQueries"] : [CodeName.From(port.Name)];
+        port.IsUser ? ["ForDoing", "ForSeeing"] : [CodeName.From(port.Name)];
 
     /// <summary>
     /// A real or simulated adapter is named for its port, then its way, taken from the adapter's name

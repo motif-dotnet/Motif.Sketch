@@ -13,8 +13,8 @@ public enum AppMode
 /// <summary>What an export would warn about (it still goes ahead) or be blocked by (plan problems).</summary>
 public sealed record ExportCheck(IReadOnlyList<string> Unplaced, IReadOnlyList<string> Warnings, IReadOnlyList<string> PlanProblems);
 
-/// <summary>Driving port, query half: everything the user can see.</summary>
-public interface UserQueries
+/// <summary>The User port's query half: everything the user can see.</summary>
+public interface ForSeeing
 {
     /// <summary>Raised after anything a query would answer differently.</summary>
     event Action? Changed;
@@ -31,7 +31,8 @@ public interface UserQueries
     /// <summary>The file the project was last opened from or saved to; null if never saved.</summary>
     string? FileName { get; }
     bool HasUnsavedChanges { get; }
-    bool CanSaveInPlace { get; }
+    /// <summary>Why Save downloads a copy in this browser, in a line, or empty when it saves back to the same file.</summary>
+    string HowProjectsAreSaved { get; }
 
     /// <summary>Whether Export glossary writes back to the file picked or downloads, in a line.</summary>
     string HowTheGlossaryIsSaved { get; }

@@ -66,10 +66,9 @@ public partial class Shell
             var result = await App.Start(Browser.Fragment(), exampleIfEmpty: phone);
             started = true;
             viewingExample = result.StartedAs == StartedAs.Example;
-            if (result.Problem is { } problem) Ui.Problem("That link can't be opened", [problem, "Here is your own work instead."]);
+            Ui.Problem(result.Problem);
             if (result.StartedAs == StartedAs.Fresh) selectSystem = !phone;
-            if (result.StartedAs == StartedAs.OtherTab)
-                Ui.Say("Motif Sketch is open in another tab", "This tab is read-only. Use this tab instead to edit here.");
+            Ui.Tell(result.Note);
             layout = App.HasSketch && !narrow ? "split" : "context";
             fitKey++;
             StateHasChanged();
@@ -217,9 +216,9 @@ public partial class Shell
         Browser.SetPreference(WelcomeDismissed, "1");
     }
 
-    private void SketchStarted()
+    private void SketchStarted(Note started)
     {
-        Ui.Say("Sketch started", "Drag the items under Not placed onto ports, adapters or the hexagon.");
+        Ui.Tell(started);
         SetLayout(narrow ? "sketch" : "split");
         fitKey++;
     }
@@ -256,10 +255,10 @@ public partial class Shell
     private async Task OpenExample()
     {
         if (!await MayDiscard("The example")) return;
-        await App.OpenExample();
+        var opened = await App.OpenExample();
         layout = narrow ? "context" : "split";
         fitKey++;
-        Ui.Say("This is Motif Sketch's own design", "It's ordinary unsaved work: change it, or save it as a file of your own.");
+        Ui.Tell(opened);
     }
 
     private async Task Save()
@@ -279,17 +278,17 @@ public partial class Shell
         if (!await Ui.Confirm("Make this your own work?",
                 "The copy replaces the work autosaved in this browser. Save that to a file first if you want to keep it.",
                 "Make a copy")) return;
-        await App.MakeCopyToEdit();
+        var copied = await App.MakeCopyToEdit();
         viewingExample = false;
         Browser.ClearFragment();
-        Ui.Say("This is now your own work", "It autosaves in this browser. Save it to a file to keep it.");
+        Ui.Tell(copied);
     }
 
     private async Task UseThisTab()
     {
-        await App.UseThisTab();
+        var taken = await App.UseThisTab();
         fitKey++;
-        Ui.Say("Editing in this tab", "The other tab is read-only now.");
+        Ui.Tell(taken);
     }
 
     private async Task CopyLink()

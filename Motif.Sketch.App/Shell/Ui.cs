@@ -41,6 +41,20 @@ public sealed class Ui : Toaster
         }
     }
 
+    /// <summary>Tells the user what a task said when it finished, if it said anything.</summary>
+    public void Tell(Note note)
+    {
+        if (note == Note.None) return;
+        if (note.Text.Length == 0) Say(note.Title);
+        else Say(note.Title, note.Text);
+    }
+
+    /// <summary>Shows a problem in the task's own words, if there was one.</summary>
+    public void Problem(Note problem)
+    {
+        if (problem != Note.None) Problem(problem.Title, [problem.Text]);
+    }
+
     /// <summary>Reports an outcome in its own words: problems, warnings, or a short note that it worked.</summary>
     public void Report(Outcome outcome)
     {

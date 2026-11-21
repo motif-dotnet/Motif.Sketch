@@ -117,7 +117,7 @@
     [Parameter] public string ExpandHint { get; set; } = "";
     [Parameter] public EventCallback OnExpand { get; set; }
     [Parameter] public EventCallback OnMaximise { get; set; }
-    [Parameter] public EventCallback OnStarted { get; set; }
+    [Parameter] public EventCallback<Note> OnStarted { get; set; }
     [Parameter] public EventCallback OnActivate { get; set; }
 
     private DiagramCanvas? canvas;
@@ -207,7 +207,7 @@
             <div class="body">
                 <div class="field"><label for="sk-name">Name</label>
                     <input id="sk-name" value="@port.Name" readonly="@(ReadOnly || port.IsUser)" @onchange="v => Ui.Run(() => App.RenamePort(port.Id, Text(v)))" /></div>
-                <div class="field"><label>Interface</label><div class="code">@(port.IsUser ? "UserTasks, UserQueries" : CodeOr(CodeName.From(port.Name)))</div></div>
+                <div class="field"><label>Interface</label><div class="code">@(port.IsUser ? "ForDoing, ForSeeing" : CodeOr(CodeName.From(port.Name)))</div></div>
                 <div class="field"><label for="sk-desc">Description</label>
                     <textarea id="sk-desc" readonly="@ReadOnly" @onchange="v => Ui.Run(() => App.DescribePort(port.Id, Text(v)))">@port.Description</textarea></div>
                 @if (!ReadOnly)
@@ -280,8 +280,9 @@
 
     private async Task Start()
     {
-        if (!Ui.Run(App.StartSketch)) return;
-        await OnStarted.InvokeAsync();
+        var started = Note.None;
+        if (!Ui.Run(() => started = App.StartSketch())) return;
+        await OnStarted.InvokeAsync(started);
     }
 
     private void AddPort(Side side)

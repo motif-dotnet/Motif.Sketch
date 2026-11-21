@@ -401,8 +401,8 @@ The elements not yet placed in the sketch. Dragging one onto a port, the hexagon
 The driving port people use. Always present in a sketch, and can't be deleted. Its real adapter here is the Web App.
 
 - **Kind:** port
-- **Avoid:** user, for a person (say Architect or Viewer)
-- **In code:** `UserTasks`, `UserQueries`
+- **Avoid:** user, for a person (say Architect or Viewer); `UserTasks`, `UserQueries` (the halves' old names)
+- **In code:** `ForDoing` (the commands), `ForSeeing` (the queries)
 - **Sketch:** `d6b20c01`
 
 ## Viewer

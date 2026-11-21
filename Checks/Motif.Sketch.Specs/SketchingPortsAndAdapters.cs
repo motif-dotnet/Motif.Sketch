@@ -17,6 +17,15 @@ public sealed class SketchingPortsAndAdapters
     }
 
     [Fact]
+    public async Task Starting_the_sketch_says_what_to_do_next()
+    {
+        var h = await Shop();
+
+        h.Tasks.StartSketch().Should().Be(
+            new Note("Sketch started", "Drag the items under Not placed onto ports, adapters or the hexagon."));
+    }
+
+    [Fact]
     public async Task Starting_the_sketch_makes_the_User_port_with_an_adapter_per_primary_actor_and_Specs()
     {
         var h = await Shop();
