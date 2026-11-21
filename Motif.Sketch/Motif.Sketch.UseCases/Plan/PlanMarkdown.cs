@@ -63,7 +63,9 @@ public static class PlanMarkdown
         Line($"- `{s}.Domain` references nothing.");
         Line($"- `{useCases}` references `{s}.Domain` only.");
         Line($"- Every adapter project references `{useCases}` only. **Adapters never reference each other.**");
-        Line("- The specs project may also reference the fakes it wires up by hand.");
+        Line(plan.Seams.Count == 0
+            ? "- The specs project may also reference the fakes it wires up by hand."
+            : "- The fakes project also references the adapter projects whose Seams it fakes, and the specs project references them too, so specs run the real adapters over fake Fittings.");
         Line("- These references are the dependency rule. Don't add others.");
         Line();
 
@@ -148,12 +150,21 @@ public static class PlanMarkdown
         {
             Line($"namespace {s}.Adapters;");
             Line();
-            Line("public sealed class FileSystemStorage : Storage");
+            Line("public sealed class ForStoringViaFileSystem : ForStoring");
         }
         Line("{");
         Line("}");
         Line("```");
         Line();
+        foreach (var port in plan.Ports.Where(p => p.Side == Side.Driven))
+        {
+            var real = port.Adapters.Where(a => a.Kind is AdapterKind.Real or AdapterKind.Simulated).Select(a => a.Name).ToList();
+            if (real.Count < 2) continue;
+            Line($"On {port.Name}, the real adapters are offered in this order: {string.Join(", ", real[..^1])}, then {real[^1]}. Each is registered as the port, in that order, and the first available is the default.");
+            Line();
+        }
+        if (plan.Seams.Count > 0)
+            WriteSeams(plan, Line);
         Line("Driving adapters (the app among them) keep their project template's default files. Checks and fakes on driving ports are the specs (section 7).");
         Line();
         var descriptions = plan.Ports.SelectMany(p => p.Adapters).Where(a => !a.AutoAdded && !string.IsNullOrWhiteSpace(a.Description)).ToList();
@@ -170,12 +181,16 @@ public static class PlanMarkdown
         Line();
         if (plan.Projects.FirstOrDefault(p => p.Role == ProjectRole.Fakes) is { } fakes)
         {
-            var folders = plan.Ports.SelectMany(p => p.Adapters).Where(a => a.Project == fakes.Name).Select(a => $"`{a.Folder}/`").Distinct();
-            Line($"- `{fakes.Name}` (`{fakes.Folder}/`): every fake driven adapter, with a folder per port ({string.Join(", ", folders)}). The namespace is flat: `{fakes.Namespace}`.");
+            var folders = plan.Ports.SelectMany(p => p.Adapters).Where(a => a.Project == fakes.Name).Select(a => a.Folder)
+                .Concat(plan.Seams.Select(x => x.FakeFolder))
+                .Distinct().Select(f => $"`{f}/`");
+            var what = plan.Seams.Count == 0 ? "every fake driven adapter" : "every fake Fitting, and every fake of a port whose adapters are their own Fittings";
+            Line($"- `{fakes.Name}` (`{fakes.Folder}/`): {what}, with a folder per port ({string.Join(", ", folders)}). The namespace is flat: `{fakes.Namespace}`.");
         }
         var specs = plan.Project(ProjectRole.Specs);
         Line($"- `{specs.Name}` (`{specs.Folder}/`): xUnit. Packages: {string.Join(", ", specs.Packages.Select(p => $"`{p}`"))}. Keep the template's packages and add `AwesomeAssertions`.");
-        Line("  Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire the fake adapters up by hand; there is no composition root yet.");
+        var wiring = plan.Seams.Count == 0 ? "the fake adapters" : "the real adapters over their fake Fittings, and the other fakes,";
+        Line($"  Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire {wiring} up by hand; there is no composition root yet.");
         var browser = plan.Projects.Where(p => p.Template == "razorclasslib").ToList();
         if (browser.Count > 0)
             Line($"- The browser adapters ({string.Join(", ", browser.Select(p => $"`{p.Name}`"))}) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.");
@@ -211,7 +226,9 @@ public static class PlanMarkdown
             Line(line.Length == 0 ? "" : $"   {line}");
         Line("   ```");
         Line();
-        Line("6. Add the port interfaces and the application stub from section 5, and the adapter stub classes from section 6.");
+        Line(plan.Seams.Count == 0
+            ? "6. Add the port interfaces and the application stub from section 5, and the adapter stub classes from section 6."
+            : "6. Add the port interfaces and the application stub from section 5, and the adapter stub classes, and each Seam with its Fittings, from section 6.");
         Line("7. Add the placeholder spec from section 7.");
         Line("8. Check that `dotnet build` and `dotnet test` both succeed.");
         Line();
@@ -219,11 +236,62 @@ public static class PlanMarkdown
         Line();
         Line("- **Stubs only.** No functionality, no interface members, no wiring.");
         Line("- **No composition root** (no host project, no dependency injection setup) in this version.");
-        Line("- **No `I` prefix** on interfaces. Implementations carry the meaningful extra (`FileSystemStorage`), never `Impl`.");
+        Line("- **No `I` prefix** on interfaces. An adapter is named for its port, then its way (`ForStoringViaFileSystem`); other implementations carry the meaningful extra (`FileSystemFolder`), never `Impl`.");
         Line("- **Two-letter acronyms stay in capitals** in code names (`IndexedDB`, `UI`).");
         Line("- Don't add projects, references or packages the plan doesn't list.");
 
         return md.ToString();
+    }
+
+    /// <summary>
+    /// The deep adapters: each Seam with its real and fake Fitting, and an example of the stubs,
+    /// from the first Seam.
+    /// </summary>
+    private static void WriteSeams(SolutionPlan plan, Action<string> line)
+    {
+        void Line(string text = "") => line(text);
+        var fakes = plan.Project(ProjectRole.Fakes);
+        var first = plan.Seams[0];
+        var port = plan.Ports.First(p => p.Name == first.Port);
+        var adapter = port.Adapters.First(a => a.Name == first.Adapters[0]);
+        var ns = plan.Projects.First(p => p.Name == first.Project).Namespace;
+        var parameter = char.ToLowerInvariant(first.Name[0]) + first.Name[1..];
+
+        Line("Deep adapters: an adapter with a Seam keeps its own rules, and reaches the outside world through the Seam, an interface it owns. The Seam's Fitting makes one outside call per member, with no branches worth testing. Specs run the real adapter over its fake Fitting, so its port has no fake of its own. The Seam and its real Fitting go in the adapter's project and namespace; the fake Fitting goes in the fakes project, in the port's folder.");
+        Line();
+        Line("| Port | Adapters | Seam | Real Fitting | Fake Fitting |");
+        Line("|---|---|---|---|---|");
+        foreach (var seam in plan.Seams)
+            Line($"| {seam.Port} | {string.Join(", ", seam.Adapters)} | `{seam.Name}` | `{seam.RealFitting}` | `{seam.FakeFitting}` (`{seam.FakeFolder}/`) |");
+        Line();
+        Line("For each Seam, add the empty interface, its real Fitting and its fake Fitting. Each adapter with a Seam takes it in its one constructor. For example:");
+        Line();
+        Line("```csharp");
+        Line($"namespace {ns};");
+        Line();
+        Line($"public interface {first.Name}");
+        Line("{");
+        Line("}");
+        Line();
+        Line($"public sealed class {first.RealFitting} : {first.Name}");
+        Line("{");
+        Line("}");
+        Line();
+        Line($"public sealed class {adapter.Class}({first.Name} {parameter}) : {port.Interfaces[0]}");
+        Line("{");
+        Line("}");
+        Line("```");
+        Line();
+        Line("```csharp");
+        Line($"using {ns};");
+        Line();
+        Line($"namespace {fakes.Namespace};");
+        Line();
+        Line($"public sealed class {first.FakeFitting} : {first.Name}");
+        Line("{");
+        Line("}");
+        Line("```");
+        Line();
     }
 
     private static readonly string[] EditorConfig =

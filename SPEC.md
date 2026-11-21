@@ -91,8 +91,9 @@ As in HexaSketch, with these changes:
 - **Port** fields: `id`, `name`, optional `description`, `side` (`driving` | `driven`) and `isUser`.
   - The User port always exists in a sketch and can't be deleted.
   - Every driving port starts with a **Specs** adapter of kind `checks`.
-- **Adapter** fields: `id`, `name`, optional `technology` and `description`, `kind` and `sources`.
+- **Adapter** fields: `id`, `name`, optional `technology`, `description` and `seam`, `kind` and `sources`.
   - `kind` is `real`, `fake`, `simulated` or **`checks`**. `checks` is allowed on driving ports only: it's a test driver that drives the application, not a stand-in for something the application calls.
+  - **`seam`**: what a deep adapter reaches the outside world through, in the app's terms (`Folder`), as Motif.NET's [adapters design note](https://github.com/motif-dotnet/.github/blob/main/design/adapters.md) has it. Only a driven `real` or `simulated` adapter has one; without it, the adapter is its own Fitting. It's a property of the adapter, not an element, and the sketch draws nothing for it yet (decision 62).
   - **`sources: [elementId, ...]`**: the context diagram elements this adapter stands for. It can be empty (a hand-made adapter) or **hold several**, e.g. one Web App serving two actors. An element can be a source of at most one adapter.
 - Starting the sketch creates the User port, and **every primary actor becomes a source of one Real adapter on it**, named after the actor (the same as HexaSketch). The user can then merge those adapters.
 - Every other context diagram element waits in an **unplaced list** until the user places it.
@@ -105,6 +106,7 @@ Loading validates the file and reports every problem in a clear message, rather 
 - not exactly one system, or a relationship rule broken
 - an element used as a source by more than one adapter
 - `checks` on a driven port, or a missing User port
+- a `seam` on anything but a driven `real` or `simulated` adapter
 
 An invalid file leaves the current project untouched.
 
@@ -178,7 +180,9 @@ Every edit in either view is one undo step: Ctrl+Z / Ctrl+Y. There is one histor
   - **Two-letter acronyms stay in capitals** in code names (`IndexedDB`, `UI`), which overrides the .NET guidelines.
   - The User port's runnable Real adapter is `<Root>.App`, or one project per adapter if there are several. Each adapter lists the context diagram items it stands for.
   - A `checks` adapter on a driving port becomes `<Root>.Specs` (xUnit and AwesomeAssertions).
-  - A fake class is `Fake<Port>`. A real adapter's class is `<AdapterName><Port>`, unless the adapter name only repeats the port name, in which case the technology is used instead.
+  - A real or simulated adapter's class is `<Port>Via<Way>`, the way being its name, unless that only repeats the port name, in which case the technology is used instead (decision 62). A fake class is `Fake<Port>`.
+  - An adapter with a Seam is deep: the plan adds the Seam's interface and its real Fitting to the adapter's project, and its fake Fitting, `Fake<Seam>`, to the fakes, in place of a fake of the port. The fakes and specs projects reference the adapter projects with Seams, so specs run the real adapters over fake Fittings.
+  - A port's real adapters keep the order drawn: it's the order they're registered and offered in, the first available the default.
 - Both exports warn, but still allow it, when items are unplaced. The plan lists them under "Not placed". Plan problems block the plan export: name clashes, unusable names, or reserved names.
 - Exports use the same File System Access / download behaviour as projects.
 - **Export glossary** writes entries for the project's glossary (`motif/glossary.md`, in the [Motif Glossary format](https://github.com/motif-dotnet/.github/blob/main/design/glossary.md)) through the Glossaries port: one per actor, external system, storage and port, marked *proposed*, with its kind, its description as the definition and its **Sketch** id. An element and a port with the same name share one entry with two kinds and two ids. The system itself, adapters and domain concepts aren't written: people add those.

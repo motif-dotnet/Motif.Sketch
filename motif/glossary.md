@@ -73,6 +73,14 @@ The first view: the system in the middle, with the actors, external systems and 
 - **In code:** `ContextDiagram`
 - **See also:** [Element](#element), [Relationship](#relationship)
 
+## Deep adapter
+
+An adapter with real work behind a small port, whose own logic runs in every spec because only its Fitting is faked. In the sketch, a driven adapter with a Seam.
+
+- **Kind:** domain concept
+- **Avoid:** deep port (depth belongs to the module, not its interface)
+- **See also:** [Fitting](#fitting), [Seam](#seam)
+
 ## Diagram Exports
 
 Writes the context diagram and the sketch as SVG pictures, cropped to the content and always in the light palette. The same name is used for the storage they're written to and for the port.
@@ -120,6 +128,16 @@ A simple in-process stand-in for a real adapter, for fast specs. Named "Fake ⟨
 - **Kind:** domain concept
 - **Avoid:** mock, stub (stub means something else here: see [Solution Stubs](#solution-stubs))
 - **In code:** `AdapterKind.Fake`; `Fake<Port>` classes in `Motif.Sketch.Fakes`
+- **See also:** [Fitting](#fitting): a port whose adapters all have Seams needs no fake of its own
+
+## Fitting
+
+The thin part of an adapter that touches the outside world. Each member is one call to it, with no branches worth testing. There's a real Fitting and a fake one, and specs fake the Fitting. The plan names them `JsInterop<Seam>` (in a browser app) and `Fake<Seam>`.
+
+- **Kind:** domain concept
+- **Avoid:** core (the domain), driver (the driving side), gateway, wrapper
+- **In code:** `PlannedSeam.RealFitting`, `PlannedSeam.FakeFitting`
+- **See also:** [Seam](#seam)
 
 ## GitHub
 
@@ -252,6 +270,15 @@ The port that reads a public repo's sketch.
 - **Status:** proposed
 - **Sketch:** `d6b20c07`
 - **See also:** [GitHub](#github)
+
+## Seam
+
+The interface between an adapter and its Fitting, owned by the adapter and named for what it reaches (after Michael Feathers: a place where behaviour can be swapped without editing the code around it). Not a kind of port. In the sketch, it's a property of a driven real or simulated adapter, and nothing is drawn for it yet.
+
+- **Kind:** domain concept
+- **Avoid:** inner port (it would be mistaken for a port in the sketch)
+- **In code:** `Adapter.Seam`, `PlannedSeam`
+- **See also:** [Fitting](#fitting)
 
 ## Secondary actor
 

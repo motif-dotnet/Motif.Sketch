@@ -44,6 +44,19 @@ public sealed record PlannedAdapter(
     string Source,
     bool AutoAdded);
 
+/// <summary>
+/// The Seam that one or more deep adapters on a port reach the outside world through. The Seam and its
+/// real Fitting go in the adapters' project; the fake Fitting goes in the fakes, in <see cref="FakeFolder"/>.
+/// </summary>
+public sealed record PlannedSeam(
+    string Name,
+    string Port,
+    IReadOnlyList<string> Adapters,
+    string Project,
+    string RealFitting,
+    string FakeFitting,
+    string FakeFolder);
+
 /// <summary>Everything the plan says, worked out from a project, before it's written as Markdown.</summary>
 public sealed record SolutionPlan(
     string Solution,
@@ -53,6 +66,7 @@ public sealed record SolutionPlan(
     string? SystemTechnology,
     IReadOnlyList<PlannedProject> Projects,
     IReadOnlyList<PlannedPort> Ports,
+    IReadOnlyList<PlannedSeam> Seams,
     IReadOnlyList<Element> NotPlaced,
     IReadOnlyList<string> Warnings,
     IReadOnlyList<string> Problems)

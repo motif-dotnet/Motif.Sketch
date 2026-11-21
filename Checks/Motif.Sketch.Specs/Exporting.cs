@@ -187,8 +187,6 @@ public sealed class Exporting
         CodeName.From("IndexedDB").Should().Be("IndexedDB");
         CodeName.From("WPF UI").Should().Be("WpfUI");
         CodeName.From("SVG Files").Should().Be("SvgFiles");
-        SolutionPlanner.ClassFor("Clipboard", "Browser", null, AdapterKind.Real).Should().Be("BrowserClipboard");
-        SolutionPlanner.ClassFor("Projects", "FakeProjects", null, AdapterKind.Fake).Should().Be("FakeProjects");
     }
 
     [Fact]

@@ -232,19 +232,19 @@ Kinds: **Real** is the production adapter; **Fake** is a simple in-process stand
 |---|---|---|---|---|---|---|
 | User | Web App | Real | Blazor WebAssembly UI | `Motif.Sketch.App` | - | Context diagram: Architect, Viewer |
 | User | Specs | Checks | xUnit | `Motif.Sketch.Specs` | - | Added in the sketch |
-| Projects | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.Projects` | `BrowserFilesProjects` | Context diagram: Project Files |
+| Projects | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.Projects` | `ProjectsViaBrowserFiles` | Context diagram: Project Files |
 | Projects | Fake Projects | Fake | - | `Motif.Sketch.Fakes` (`Projects/`) | `FakeProjects` | Added in the sketch |
-| Autosave | IndexedDB | Real | Browser storage | `Motif.Sketch.Autosave` | `IndexedDBAutosave` | Context diagram: Browser Storage |
+| Autosave | IndexedDB | Real | Browser storage | `Motif.Sketch.Autosave` | `AutosaveViaIndexedDB` | Context diagram: Browser Storage |
 | Autosave | Fake Autosave | Fake | - | `Motif.Sketch.Fakes` (`Autosave/`) | `FakeAutosave` | Added in the sketch |
-| Diagram Exports | SVG Files | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.DiagramExports` | `SvgFilesDiagramExports` | Context diagram: Diagram Exports |
+| Diagram Exports | SVG Files | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.DiagramExports` | `DiagramExportsViaSvgFiles` | Context diagram: Diagram Exports |
 | Diagram Exports | Fake Diagram Exports | Fake | - | `Motif.Sketch.Fakes` (`DiagramExports/`) | `FakeDiagramExports` | Added in the sketch |
-| Solution Stubs | Markdown Plan | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.SolutionStubs` | `MarkdownPlanSolutionStubs` | Context diagram: Solution Plans |
+| Solution Stubs | Markdown Plan | Real | Browser Files (File System Access API, download fallback) | `Motif.Sketch.SolutionStubs` | `SolutionStubsViaMarkdownPlan` | Context diagram: Solution Plans |
 | Solution Stubs | Fake Solution Stubs | Fake | - | `Motif.Sketch.Fakes` (`SolutionStubs/`) | `FakeSolutionStubs` | Added in the sketch |
-| Clipboard | Browser | Real | Browser Clipboard API (JS interop) | `Motif.Sketch.Clipboard` | `BrowserClipboard` | Context diagram: Clipboard |
+| Clipboard | Browser | Real | Browser Clipboard API (JS interop) | `Motif.Sketch.Clipboard` | `ClipboardViaBrowser` | Context diagram: Clipboard |
 | Clipboard | Fake Clipboard | Fake | - | `Motif.Sketch.Fakes` (`Clipboard/`) | `FakeClipboard` | Added in the sketch |
-| Repos | GitHub | Real | raw.githubusercontent.com (HttpClient) | `Motif.Sketch.Repos` | `GitHubRepos` | Context diagram: GitHub |
+| Repos | GitHub | Real | raw.githubusercontent.com (HttpClient) | `Motif.Sketch.Repos` | `ReposViaGitHub` | Context diagram: GitHub |
 | Repos | Fake Repos | Fake | - | `Motif.Sketch.Fakes` (`Repos/`) | `FakeRepos` | Added in the sketch |
-| Glossaries | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.Glossaries` | `BrowserFilesGlossaries` | Context diagram: Glossary Files |
+| Glossaries | Browser Files | Real | File System Access API, download fallback | `Motif.Sketch.Glossaries` | `GlossariesViaBrowserFiles` | Context diagram: Glossary Files |
 | Glossaries | Fake Glossaries | Fake | - | `Motif.Sketch.Fakes` (`Glossaries/`) | `FakeGlossaries` | Added in the sketch |
 
 For each driven adapter, add the stub class named above implementing its port's interface, in its project's namespace and in the folder shown. For example:
@@ -252,7 +252,7 @@ For each driven adapter, add the stub class named above implementing its port's 
 ```csharp
 namespace Motif.Sketch.Adapters;
 
-public sealed class BrowserFilesProjects : Projects
+public sealed class ProjectsViaBrowserFiles : Projects
 {
 }
 ```
@@ -315,6 +315,6 @@ Ground rules:
 
 - **Stubs only.** No functionality, no interface members, no wiring.
 - **No composition root** (no host project, no dependency injection setup) in this version.
-- **No `I` prefix** on interfaces. Implementations carry the meaningful extra (`FileSystemStorage`), never `Impl`.
+- **No `I` prefix** on interfaces. An adapter is named for its port, then its way (`ForStoringViaFileSystem`); other implementations carry the meaningful extra (`FileSystemFolder`), never `Impl`.
 - **Two-letter acronyms stay in capitals** in code names (`IndexedDB`, `UI`).
 - Don't add projects, references or packages the plan doesn't list.
