@@ -43,7 +43,7 @@ Motif.Sketch.sln
 | `Motif.Sketch.ForExportingDiagrams` | `Adapters/Motif.Sketch.ForExportingDiagrams/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For exporting diagrams port |
 | `Motif.Sketch.ForExportingThePlan` | `Adapters/Motif.Sketch.ForExportingThePlan/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For exporting the plan port |
 | `Motif.Sketch.ForCopying` | `Adapters/Motif.Sketch.ForCopying/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For copying port |
-| `Motif.Sketch.ForOpeningRepos` | `Adapters/Motif.Sketch.ForOpeningRepos/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For opening repos port |
+| `Motif.Sketch.ForOpeningRepos` | `Adapters/Motif.Sketch.ForOpeningRepos/` | `classlib` | `Motif.Sketch.Adapters` | Adapters on the For opening repos port |
 | `Motif.Sketch.ForExportingTheGlossary` | `Adapters/Motif.Sketch.ForExportingTheGlossary/` | `razorclasslib` | `Motif.Sketch.Adapters` | Adapters on the For exporting the glossary port |
 | `Motif.Sketch.Fakes` | `Checks/Motif.Sketch.Fakes/` | `classlib` | `Motif.Sketch.Fakes` | Fake driven adapters, for specs |
 | `Motif.Sketch.Specs` | `Checks/Motif.Sketch.Specs/` | `xunit` | `Motif.Sketch.Specs` | Specs: the checks on every driving port |
@@ -309,7 +309,7 @@ Adapter notes:
 - `Motif.Sketch.Fakes` (`Checks/Motif.Sketch.Fakes/`): every fake Fitting, and every fake of a port whose adapters are their own Fittings, with a folder per port (`ForExportingDiagrams/`, `ForExportingThePlan/`, `ForCopying/`, `ForOpeningRepos/`, `ForStoringProjects/`, `ForAutosaving/`, `ForExportingTheGlossary/`). The namespace is flat: `Motif.Sketch.Fakes`.
 - `Motif.Sketch.Specs` (`Checks/Motif.Sketch.Specs/`): xUnit. Packages: `Microsoft.NET.Test.Sdk`, `xunit`, `xunit.runner.visualstudio`, `coverlet.collector`, `AwesomeAssertions`. Keep the template's packages and add `AwesomeAssertions`.
   Add one placeholder spec class with a single passing `[Fact]`, so `dotnet test` runs. Specs wire the real adapters over their fake Fittings, and the other fakes, up by hand; there is no composition root yet.
-- The browser adapters (`Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingDiagrams`, `Motif.Sketch.ForExportingThePlan`, `Motif.Sketch.ForCopying`, `Motif.Sketch.ForOpeningRepos`, `Motif.Sketch.ForExportingTheGlossary`) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.
+- The browser adapters (`Motif.Sketch.ForStoringProjects`, `Motif.Sketch.ForAutosaving`, `Motif.Sketch.ForExportingDiagrams`, `Motif.Sketch.ForExportingThePlan`, `Motif.Sketch.ForCopying`, `Motif.Sketch.ForExportingTheGlossary`) also take `Microsoft.JSInterop`: each reaches the browser through a small JS module it ships as a static web asset.
 - Use the latest stable package versions. Use AwesomeAssertions (`.Should()` style) in specs.
 
 ## 8. Not placed

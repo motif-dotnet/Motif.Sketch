@@ -60,6 +60,9 @@ public static partial class SolutionPlanner
             else if (plugged.Count > 0)
             {
                 var templates = plugged.Select(x => TemplateFor(port.Side, x.First.Technology, blazor)).Distinct().ToList();
+                // A Razor class library holds plain classes too, so one adapter that uses the browser decides it.
+                if (templates.Count == 2 && templates.Contains("razorclasslib") && templates.Contains("classlib"))
+                    templates = ["razorclasslib"];
                 if (templates.Count > 1)
                     problems.Add($"The adapters on port '{port.Name}' share a project but need different project templates ({string.Join(", ", templates)}).");
                 var name = plugged[0].Second.Project;
@@ -273,9 +276,13 @@ public static partial class SolutionPlanner
             if (tech.Contains("web") || tech.Contains("http")) return "web";
             return "classlib";
         }
-        // In a browser app, a driven adapter reaches the browser through a JS module it ships as a static web asset.
-        return blazorSolution ? "razorclasslib" : "classlib";
+        // In a browser app, a driven adapter that uses the browser reaches it through a JS module it ships as a
+        // static web asset. One that doesn't, such as over HttpClient or embedded resources, is a plain library.
+        return blazorSolution && UsesTheBrowser.Any(tech.Contains) ? "razorclasslib" : "classlib";
     }
+
+    /// <summary>Words in a driven adapter's technology that say it uses the browser.</summary>
+    private static readonly string[] UsesTheBrowser = ["js interop", "browser", "file system access", "indexeddb"];
 
     [GeneratedRegex(@"\([^)]*\)")]
     private static partial Regex Brackets();
