@@ -102,13 +102,19 @@ svg.scene .hit:hover:not(.sel) .outline { filter: brightness(.96); }
   .thumb .mini, .start-btn:not(.big) { width: 80px; } .thumb .mini { height: 74px; }
   .props { width: 230px; } .welcome { width: 280px; }
   .tool .label { display: none; }
+  /* Two layouts, and the other pane's strip moves between them (decision 26) */
+  .switch { display: none !important; }
+  /* Only the title and a read-only pill's source (a repo can have a long
+     name) give way, so nothing else is cut off */
+  .appbar > * { flex-shrink: 0; }
+  .appbar > .title, .appbar > .pill { flex-shrink: 1; }
+  .title { overflow: hidden; min-width: 0; }
+  .pill .long { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 }
 
 /* Phones: view only (decision 30), so the bar must fit */
 @media (max-width: 599px) {
-  .switch { display: none !important; }
-  .appbar > * { flex-shrink: 0; } .appbar > .title { flex-shrink: 1; }
-  .title { overflow: hidden; min-width: 0; padding: 4px 6px; margin-right: 2px; }
+  .title { padding: 4px 6px; margin-right: 2px; }
   .pill { padding: 0 8px; }
   /* Seen only as the eye, but still read out by screen readers */
   .pill .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

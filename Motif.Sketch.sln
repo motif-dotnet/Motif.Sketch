@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForOpeningRepo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.ForExportingTheGlossary", "Adapters\Motif.Sketch.ForExportingTheGlossary\Motif.Sketch.ForExportingTheGlossary.csproj", "{F182F37D-6100-4998-ADFB-8B8C08DCF5A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motif.Sketch.BrowserSpecs", "Checks\Motif.Sketch.BrowserSpecs\Motif.Sketch.BrowserSpecs.csproj", "{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +189,18 @@ Global
 		{F182F37D-6100-4998-ADFB-8B8C08DCF5A2}.Release|x64.Build.0 = Release|Any CPU
 		{F182F37D-6100-4998-ADFB-8B8C08DCF5A2}.Release|x86.ActiveCfg = Release|Any CPU
 		{F182F37D-6100-4998-ADFB-8B8C08DCF5A2}.Release|x86.Build.0 = Release|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Debug|x64.Build.0 = Debug|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Release|x64.ActiveCfg = Release|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Release|x64.Build.0 = Release|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -203,5 +217,6 @@ Global
 		{2CC821F5-CBED-4E76-8434-81331C71033B} = {36CBE016-26E7-D9D2-6ED5-AE44737356E1}
 		{84574CD5-AF76-4CBD-AF23-7E17713639BD} = {09DF2EE5-5FE7-3EC7-59CB-CAD7E0928979}
 		{F182F37D-6100-4998-ADFB-8B8C08DCF5A2} = {09DF2EE5-5FE7-3EC7-59CB-CAD7E0928979}
+		{1E667C3A-5C0C-4FFE-935A-0A5B3A672F7A} = {36CBE016-26E7-D9D2-6ED5-AE44737356E1}
 	EndGlobalSection
 EndGlobal
