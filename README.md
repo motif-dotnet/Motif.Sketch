@@ -42,7 +42,10 @@ You need the .NET 10 SDK.
 dotnet run --project Motif.Sketch.App      # http://localhost:5173
 dotnet test                                 # the specs: the core through the User port, with fakes
 dotnet publish Motif.Sketch.App -c Release  # static files in bin/Release/net10.0/publish/wwwroot
+dotnet tool restore && dotnet stryker       # mutation testing of the specs
 ```
+
+Mutation testing uses [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/introduction/), a .NET tool pinned in [dotnet-tools.json](dotnet-tools.json), set up by [stryker-config.json](stryker-config.json) over [Motif.Sketch.Specs.slnx](Motif.Sketch.Specs.slnx), so the browser specs stay out. It changes the code under the specs (Domain, UseCases and the adapters) a little at a time and checks a spec fails each time. The HTML report is written to `StrykerOutput/`.
 
 Pushing to `main` runs `.github/workflows/pages.yml`: it runs the specs, publishes, sets `<base href>` for the `/Motif.Sketch/` sub-path, adds `.nojekyll`, and deploys to GitHub Pages.
 

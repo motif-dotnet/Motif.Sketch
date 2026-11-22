@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="Motif.Sketch/Motif.Sketch.Domain/Motif.Sketch.Domain.csproj" />
+  <Project Path="Motif.Sketch/Motif.Sketch.UseCases/Motif.Sketch.UseCases.csproj" />
+  <Project Path="Adapters/Motif.Sketch.ForAutosaving/Motif.Sketch.ForAutosaving.csproj" />
+  <Project Path="Adapters/Motif.Sketch.ForOpeningRepos/Motif.Sketch.ForOpeningRepos.csproj" />
+  <Project Path="Adapters/Motif.Sketch.ForStoringProjects/Motif.Sketch.ForStoringProjects.csproj" />
+  <Project Path="Adapters/Motif.Sketch.ForExportingTheGlossary/Motif.Sketch.ForExportingTheGlossary.csproj" />
+  <Project Path="Checks/Motif.Sketch.Fakes/Motif.Sketch.Fakes.csproj" />
+  <Project Path="Checks/Motif.Sketch.Specs/Motif.Sketch.Specs.csproj" />
+</Solution>
