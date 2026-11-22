@@ -106,7 +106,8 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Stryker's job took about 29 minutes in CI, three times as long as on a laptop.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
 
