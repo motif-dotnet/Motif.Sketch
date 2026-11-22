@@ -102,4 +102,48 @@ public sealed class KeepingTheViewsInStep
         h.Adapter("Customer").Should().BeEquivalentTo(new { SourceDeleted = false });
         h.Adapter("Customer").Sources.Select(s => s.Name).Should().Equal("Customer");
     }
+
+    [Fact]
+    public async Task The_source_deleted_flag_survives_saving_and_opening()
+    {
+        var h = await Started();
+        h.Tasks.DeleteElement(h.Element("Customer").Id);
+        h.Adapter("Customer").SourceDeleted.Should().BeTrue();
+        await h.Tasks.SaveAs();
+        var saved = h.ProjectFiles.Writes[^1].Text;
+
+        var fresh = new Harness();
+        fresh.ProjectFiles.NextOpen = fresh.ProjectFiles.FileOf("again.motifsketch.json", saved);
+        (await fresh.Tasks.Open()).Succeeded.Should().BeTrue();
+
+        fresh.Adapter("Customer").SourceDeleted.Should().BeTrue();
+        fresh.Adapter("Staff").SourceDeleted.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Merging_an_item_in_clears_the_flag()
+    {
+        var merged = await Started();
+        merged.Tasks.DeleteElement(merged.Element("Customer").Id);
+        var storage = merged.Tasks.AddElement(ElementType.Storage);
+        merged.Adapter("Customer").SourceDeleted.Should().BeTrue();
+
+        merged.Tasks.MergeInto(storage, merged.Adapter("Customer").Id);
+
+        merged.Adapter("Customer").SourceDeleted.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Removing_one_of_its_sources_clears_the_flag()
+    {
+        var removed = await Started();
+        removed.Tasks.RemoveAdapter(removed.Adapter("Staff").Id);
+        removed.Tasks.MergeInto(removed.Element("Staff").Id, removed.Adapter("Customer").Id);
+        removed.Tasks.DeleteElement(removed.Element("Customer").Id);
+        removed.Adapter("Customer").SourceDeleted.Should().BeTrue();
+
+        removed.Tasks.RemoveSource(removed.Adapter("Customer").Id, removed.Element("Staff").Id);
+
+        removed.Adapter("Customer").SourceDeleted.Should().BeFalse();
+    }
 }

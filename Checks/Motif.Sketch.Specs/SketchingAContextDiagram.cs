@@ -136,4 +136,19 @@ public sealed class SketchingAContextDiagram
 
         h.Queries.Title.Should().Be("Online Shop");
     }
+
+    [Fact]
+    public async Task The_systems_type_cant_change_and_nothing_can_become_the_system()
+    {
+        var h = await Harness.Started();
+        var storage = h.Tasks.AddElement(ElementType.Storage);
+        var before = h.Queries.ProjectJsonText;
+
+        h.Invoking(x => x.Tasks.SetElementType(x.System.Id, ElementType.Storage)).Should().Throw<ProjectRuleException>();
+        h.Invoking(x => x.Tasks.SetElementType(storage, ElementType.System)).Should().Throw<ProjectRuleException>();
+
+        h.Queries.ProjectJsonText.Should().Be(before);
+        h.System.Type.Should().Be(ElementType.System);
+        h.Queries.Context.Element(storage)!.Type.Should().Be(ElementType.Storage);
+    }
 }

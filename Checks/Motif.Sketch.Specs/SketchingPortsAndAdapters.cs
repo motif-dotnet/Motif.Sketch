@@ -276,4 +276,16 @@ public sealed class SketchingPortsAndAdapters
 
         h.Queries.Sketch!.Port(port)!.Adapters.Select(a => a.Name).Should().Equal("Orders DB", "Fake for storing orders");
     }
+
+    [Fact]
+    public async Task Removing_a_source_an_adapter_doesnt_have_is_refused()
+    {
+        var h = await Shop();
+        h.Tasks.StartSketch();
+        var before = h.Queries.ProjectJsonText;
+
+        h.Invoking(x => x.Tasks.RemoveSource(x.Adapter("Customer").Id, x.Element("Staff").Id)).Should().Throw<ProjectRuleException>();
+
+        h.Queries.ProjectJsonText.Should().Be(before);
+    }
 }

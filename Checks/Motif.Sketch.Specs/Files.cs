@@ -208,6 +208,10 @@ public sealed class Files
     [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" } ] }, "sketch": { "ports": [ { "id": "u", "name": "User", "side": "driving", "isUser": true }, { "id": "p", "name": "P", "side": "driven", "adapters": [ { "id": "x", "name": "Specs", "kind": "checks" } ] } ] } }""", "driving ports only")]
     [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" } ] }, "sketch": { "ports": [ { "id": "u", "name": "User", "side": "driving", "isUser": true, "adapters": [ { "id": "x", "name": "X", "kind": "real", "sources": ["nope"] } ] } ] } }""", "isn't an element of the context diagram")]
     [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" }, { "id": "a", "type": "primaryActor", "name": "Ann" } ], "relationships": [ { "id": "r", "from": "a", "to": "s" } ] }, "sketch": { "ports": [ { "id": "u", "name": "User", "side": "driving", "isUser": true, "adapters": [ { "id": "x", "name": "X", "kind": "real", "sources": ["a"] }, { "id": "y", "name": "Y", "kind": "real", "sources": ["a"] } ] } ] } }""", "more than one adapter")]
+    [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" }, { "id": "a", "type": "primaryActor", "name": "Ann" } ], "relationships": [ { "id": "r", "from": "a", "to": "a" } ] } }""", "links an element to itself")]
+    [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" } ] }, "sketch": { "ports": [ { "id": "u", "name": "User", "side": "driven", "isUser": true } ] } }""", "must be on the driving side")]
+    [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" } ] }, "sketch": { "ports": [ { "id": "u", "name": "User", "side": "driving", "isUser": true }, { "id": "v", "name": "User 2", "side": "driving", "isUser": true } ] } }""", "2 User ports")]
+    [InlineData("""{ "schemaVersion": 1, "contextDiagram": { "elements": [ { "id": "s", "type": "system", "name": "A" }, { "id": "", "type": "storage", "name": "B" } ], "relationships": [ { "id": "r", "from": "s", "to": "" } ] } }""", "has no id")]
     public async Task An_invalid_file_is_reported_and_leaves_the_current_work_untouched(string text, string problem)
     {
         var h = await Harness.WithExample();
@@ -230,6 +234,9 @@ public sealed class Files
 
         var outcome = await h.Tasks.Open();
 
-        outcome.Problems.Should().HaveCountGreaterThanOrEqualTo(3);
+        outcome.Problems.Should().Equal(
+            "There must be exactly one system, but there are 0.",
+            "Element 'b' has no name.",
+            "'' must have exactly one relationship, with the system, but has 0.");
     }
 }

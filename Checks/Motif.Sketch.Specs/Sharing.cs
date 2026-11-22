@@ -128,4 +128,34 @@ public sealed class Sharing
         outcome.Text.Should().StartWith($"It's {outcome.Link!.Length:N0} characters.");
         h.Clipboard.Text.Should().Be(outcome.Link);
     }
+
+    [Theory]
+    [InlineData("NewProject")]
+    [InlineData("OpenExample")]
+    [InlineData("Open")]
+    [InlineData("Save")]
+    [InlineData("SaveAs")]
+    public async Task A_snapshot_cant_start_new_work_open_the_example_open_a_file_or_save(string action)
+    {
+        var viewer = new Harness();
+        await viewer.Tasks.Start("#" + SnapshotLink.Fragment(Example.Project()));
+        var before = viewer.Queries.ProjectJsonText;
+        viewer.ProjectFiles.NextOpen = viewer.ProjectFiles.FileOf("other.motifsketch.json", Example.Json());
+        viewer.ProjectFiles.NextSaveAsName = "mine.motifsketch.json";
+        var writesBefore = viewer.BrowserStorage.Writes.Count;
+
+        Func<Task> act = action switch
+        {
+            "NewProject" => () => viewer.Tasks.NewProject(),
+            "OpenExample" => () => viewer.Tasks.OpenExample(),
+            "Open" => () => viewer.Tasks.Open(),
+            "Save" => () => viewer.Tasks.Save(),
+            _ => () => viewer.Tasks.SaveAs(),
+        };
+
+        await act.Should().ThrowAsync<ProjectRuleException>();
+        viewer.Queries.ProjectJsonText.Should().Be(before);
+        viewer.ProjectFiles.Writes.Should().BeEmpty();
+        viewer.BrowserStorage.Writes.Count.Should().Be(writesBefore);
+    }
 }

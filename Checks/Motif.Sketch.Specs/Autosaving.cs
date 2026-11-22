@@ -230,4 +230,36 @@ public sealed class Autosaving
         h.Queries.Mode.Should().Be(AppMode.Architect);
         h.BrowserStorage.Writes.Should().ContainSingle();
     }
+
+    [Theory]
+    [InlineData("NewProject")]
+    [InlineData("OpenExample")]
+    [InlineData("Open")]
+    [InlineData("Save")]
+    [InlineData("SaveAs")]
+    public async Task A_second_tab_cant_start_new_work_open_the_example_open_a_file_or_save(string action)
+    {
+        var h = new Harness();
+        h.BrowserStorage.HeldElsewhere = true;
+        h.BrowserStorage.Work = new AutosavedWork(Example.Json(), null, null, false);
+        await h.Tasks.Start(null);
+        var before = h.Queries.ProjectJsonText;
+        h.ProjectFiles.NextOpen = h.ProjectFiles.FileOf("other.motifsketch.json", Example.Json());
+        h.ProjectFiles.NextSaveAsName = "mine.motifsketch.json";
+        var writesBefore = h.BrowserStorage.Writes.Count;
+
+        Func<Task> act = action switch
+        {
+            "NewProject" => () => h.Tasks.NewProject(),
+            "OpenExample" => () => h.Tasks.OpenExample(),
+            "Open" => () => h.Tasks.Open(),
+            "Save" => () => h.Tasks.Save(),
+            _ => () => h.Tasks.SaveAs(),
+        };
+
+        await act.Should().ThrowAsync<ProjectRuleException>();
+        h.Queries.ProjectJsonText.Should().Be(before);
+        h.ProjectFiles.Writes.Should().BeEmpty();
+        h.BrowserStorage.Writes.Count.Should().Be(writesBefore);
+    }
 }
