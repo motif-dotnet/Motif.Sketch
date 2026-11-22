@@ -47,7 +47,11 @@ dotnet tool restore && dotnet stryker       # mutation testing of the specs
 
 Mutation testing uses [Stryker.NET](https://stryker-mutator.io/docs/stryker-net/introduction/), a .NET tool pinned in [dotnet-tools.json](dotnet-tools.json), set up by [stryker-config.json](stryker-config.json) over [Motif.Sketch.Specs.slnx](Motif.Sketch.Specs.slnx), so the browser specs stay out. It changes the code under the specs (Domain, UseCases and the adapters) a little at a time and checks a spec fails each time. The HTML report is written to `StrykerOutput/`.
 
-Pushing to `main` runs `.github/workflows/pages.yml`: it runs the specs, publishes, sets `<base href>` for the `/Motif.Sketch/` sub-path, adds `.nojekyll`, and deploys to GitHub Pages.
+Pushing to `main` runs `.github/workflows/pages.yml`: it runs the specs, publishes, runs the browser specs against what it published, sets `<base href>` for the `/Motif.Sketch/` sub-path, adds `.nojekyll`, and deploys to GitHub Pages. A push that changes only the top-level `.md` files doesn't run it.
+
+`.github/workflows/nightly.yml` runs every night, and by hand from the Actions tab: all the specs, with the browser specs in Edge and in Chrome. A spec too slow for every push gets `[Trait("Kind", "Nightly")]`, and then runs only there.
+
+The browser specs publish the app themselves, unless `MOTIF_SITE` names a folder it's already published to. `MOTIF_BROWSER` picks a browser other than Edge, such as `chrome`.
 
 The layout is the one Motif Sketch exports for itself ([motif/plan.md](motif/plan.md), which the specs check against the sketch):
 
