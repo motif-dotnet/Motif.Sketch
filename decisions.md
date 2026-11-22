@@ -82,4 +82,6 @@ Motif Sketch is the first tool in the Motif suite. It combines Context Sketch an
 
 ## Still open
 
-Questions the build raised, not yet settled: none at the moment. Code root (decision 56) and Copy link without the clipboard (decision 57) were the last two.
+Questions the build raised, not yet settled:
+
+- **A flaky browser spec.** `Autosaving.Unsaved_work_marks_the_tab_title_and_warns_on_closing` sometimes takes the whole browser down when it closes its page with `RunBeforeUnload`, so the next spec fails with `TargetClosedException` (CI run 45001293030 on dd8f83c; a re-run passed). It also broke every later spec when the browser specs were tried on xunit v3, so they stay on xunit 2 until it's fixed.
