@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Motif.Sketch.BrowserSpecs;
 
 /// <summary>Autosave in the browser's own storage, across reloads and tabs.</summary>
@@ -19,6 +21,29 @@ public sealed class Autosaving(Site site)
         (await Elements(page)).Should().Be(2, "the system and the storage");
         await Assertions.Expect(page.GetByTitle("Unsaved changes"))
             .ToBeVisibleAsync();
+    }
+
+    [Fact]
+    public async Task Unsaved_work_marks_the_tab_title_and_warns_on_closing()
+    {
+        await using var profile = await site.Profile();
+        var page = await site.Open(profile);
+        (await page.TitleAsync()).Should().NotStartWith("• ");
+        var dialogs = new List<string>();
+        var warned = new TaskCompletionSource();
+        page.Dialog += (_, dialog) =>
+        {
+            dialogs.Add(dialog.Type);
+            _ = dialog.DismissAsync();
+            warned.TrySetResult();
+        };
+
+        await page.GetByTitle("Add a storage").ClickAsync();
+        await Assertions.Expect(page).ToHaveTitleAsync(new Regex("^• "));
+        await page.CloseAsync(new() { RunBeforeUnload = true });
+
+        await warned.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        dialogs.Should().Equal("beforeunload");
     }
 
     [Fact]
@@ -57,7 +82,7 @@ public sealed class Autosaving(Site site)
     /// The context diagram's elements, the system among them. An element is
     /// drawn as several nodes that share its hit, so hits are counted once.
     /// </summary>
-    private static Task<int> Elements(IPage page) =>
+    internal static Task<int> Elements(IPage page) =>
         page.Locator(".pane.context [data-hit^='element:']")
             .EvaluateAllAsync<int>(
                 "nodes => new Set(nodes.map(n => n.dataset.hit)).size");

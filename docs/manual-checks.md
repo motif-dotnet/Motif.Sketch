@@ -1,8 +1,10 @@
 # Manual checks before a deploy
 
 The specs drive the app through the User port, and run every real adapter over fake Fittings
-(decision 63), so the real Fittings and the Web App's views are checked by hand: no automated test
-drives a browser (decision 45). Run this list in **Chrome (or Edge)** and **Firefox** before
+(decision 63), so the real Fittings and the Web App's views are checked by hand. The browser specs
+(`Checks/Motif.Sketch.BrowserSpecs`, decision 45) cover the app bar's and banners' layout,
+autosave across reloads and tabs, the unsaved marker, the theme, and Copy link, in Edge only, so
+those checks are marked Firefox below. Run this list in **Chrome (or Edge)** and **Firefox** before
 pushing a release to `main`. When only a Fitting has changed, its own section is enough. If a fake
 Fitting turns out to behave differently from the real one, tighten the contract in its Seam's doc
 comments, and fix the fake.
@@ -38,10 +40,10 @@ published site after the workflow deploys it.
 
 ## Browser Storage (`JsInteropBrowserStorage`, `autosave.js`)
 
-- [ ] The title shows a dot and the tab title a • while there are unsaved changes; closing the tab warns.
-- [ ] Reload mid-edit: nothing is lost, and the unsaved marker is still there.
+- [ ] Firefox: the title shows a dot and the tab title a • while there are unsaved changes; closing the tab warns.
+- [ ] Firefox: reload mid-edit: nothing is lost, and the unsaved marker is still there.
 - [ ] Chrome: save to a file, edit, reload, Save: it writes to the same file after asking once for permission (the file handle came back from autosave).
-- [ ] Open a second tab: it's read-only with a banner. "Use this tab instead" moves editing to it, and the first tab goes read-only with the latest work saved.
+- [ ] Firefox: open a second tab: it's read-only with a banner. "Use this tab instead" moves editing to it, and the first tab goes read-only with the latest work saved.
 
 ## Glossary Files (`JsInteropGlossaryFiles`, `glossaries.js`)
 
@@ -74,6 +76,6 @@ SVG Files (`diagramexports.js`), Markdown File (`solutionstubs.js`) and Browser 
 - [ ] Phone width with no autosaved work (or only the system): opens the example read-only, with the example banner.
 - [ ] `#example` on a computer: the example read-only, "Example · read-only", Make a copy to edit works.
 - [ ] Empty work on a computer (fresh, or after New): the welcome card shows until dismissed; once dismissed it never returns.
-- [ ] Theme menu: System / Light / Dark, remembered after a reload, and shared with Motif Glossary on the same site.
+- [ ] Firefox: Theme menu: System / Light / Dark, remembered after a reload. Any browser: shared with Motif Glossary on the same site.
 - [ ] The mark and name open the tool switcher: Motif Sketch is marked as this tool, and Motif Glossary opens the Glossary.
 - [ ] Open example shows Motif Sketch's own design.

@@ -55,12 +55,17 @@ public sealed class Site : IAsyncLifetime
         });
     }
 
-    /// <summary>A browser profile of its own, at this window width.</summary>
-    public async Task<IBrowserContext> Profile(int width = 1280)
+    /// <summary>
+    /// A browser profile of its own, at this window width, allowed these
+    /// permissions (such as "clipboard-read").
+    /// </summary>
+    public async Task<IBrowserContext> Profile(
+        int width = 1280, params string[] permissions)
     {
         var profile = await browser!.NewContextAsync(new()
         {
             ViewportSize = new() { Width = width, Height = 812 },
+            Permissions = permissions,
         });
         await profile.RouteAsync("**/*", Route);
         return profile;
