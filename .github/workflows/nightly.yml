@@ -1,5 +1,6 @@
 # Every night, and when run by hand: every spec, the nightly ones too (Kind=Nightly, left out of
-# pages.yml to keep pushes fast), with the browser specs in Edge and in Chrome. Nothing is deployed.
+# pages.yml to keep pushes fast), with the browser specs in Edge and in Chrome, and Stryker, whose
+# report pages.yml then deploys.
 # GitHub emails a scheduled run's failure only to whoever last changed the cron line below.
 name: Nightly
 
@@ -67,3 +68,38 @@ jobs:
           $lines += $all | Sort-Object { [timespan]$_.duration } -Descending | Select-Object -First 5 |
             ForEach-Object { "| ``$($_.testName)`` | $(& $ms $_.duration) ms |" }
           $lines | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+
+  # Stryker takes about half an hour in CI, too long for every push (decision 67).
+  mutation-tests:
+    runs-on: ubuntu-latest
+    # Stryker's job took about 29 minutes in CI, three times as long as on a laptop.
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      # To start pages.yml.
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      # A low score doesn't fail the run (break is 0): the score is something to look at first.
+      - name: Stryker
+        run: dotnet stryker --output stryker
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mutation-report
+          path: stryker/reports/mutation-report.json
+          if-no-files-found: error
+
+      # pages.yml puts the newest report on the site.
+      - name: Deploy the report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml -R "$GITHUB_REPOSITORY" --ref main

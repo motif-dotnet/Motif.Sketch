@@ -20,6 +20,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      # To find the newest mutation report.
+      actions: read
     steps:
       - uses: actions/checkout@v7
 
@@ -79,6 +83,19 @@ jobs:
           touch publish/wwwroot/.nojekyll
           cp publish/wwwroot/index.html publish/wwwroot/404.html
 
+      # Stryker runs each night (nightly.yml), so every deploy carries its newest report, at
+      # motif/mutation-report.json for Motif Bubbles (decision 67). Before its first run there's none.
+      - name: Add the mutation report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=mutation-report" \
+            --jq '[.artifacts[] | select(.expired | not)][0].workflow_run.id // empty')
+          if [ -n "$run" ]; then
+            gh run download "$run" -R "$GITHUB_REPOSITORY" -n mutation-report \
+              -D publish/wwwroot/motif
+          fi
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: publish/wwwroot
@@ -99,68 +116,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
-
-  # Stryker takes minutes, so it runs beside the deploy rather than before it, and the site goes out
-  # again with its report once it's done (decision 67).
-  mutation-tests:
-    if: github.event_name != 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    # Stryker's job took about 29 minutes in CI, three times as long as on a laptop.
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Restore tools
-        run: dotnet tool restore
-
-      # A low score doesn't fail the run (break is 0): the score is something to look at first.
-      - name: Stryker
-        run: dotnet stryker --output stryker
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: mutation-report
-          path: stryker/reports/mutation-report.json
-          if-no-files-found: error
-
-  # The site the build made, with the report added at motif/mutation-report.json for Motif Bubbles.
-  deploy-with-report:
-    needs: [deploy, mutation-tests]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          name: github-pages
-
-      - name: Unpack the site
-        run: |
-          mkdir site
-          tar -xf artifact.tar -C site
-
-      - uses: actions/download-artifact@v8
-        with:
-          name: mutation-report
-          path: site/motif
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          name: github-pages-with-report
-          path: site
-          include-hidden-files: true
-
-      - id: deployment
-        uses: actions/deploy-pages@v5
-        with:
-          artifact_name: github-pages-with-report
